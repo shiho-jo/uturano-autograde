@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="content">
+        <h1>Overview</h1>
+        <br><br><br>
+        <h2>Course name: CS 61A</h2>
+        <h2>Description</h2>
+        <hr>
+        <p>In 61A, the correctness of a program was our primary goal. In CS 61B, we're concerned also with engineering. An engineer, it is said, is someone who can do for a dime what any fool can do for a dollar. Much of 61B will be concerned with the tradeoffs in time and memory for a variety of methods for structuring data. We'll also be concerned with the engineering knowledge and skills needed to build and maintain moderately large programs.</p>
+        <!-- <h2>Submissions: <span id="submissions-count">0 / 60</span></h2>
+        <h2>Average Score: <span id="average-score">0.00 / 40 (0.00%)</span></h2> -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+
+        // document.addEventListener("DOMContentLoaded", function() {
+        //             const submissionsTable = document.getElementById('submissionsTable');
+        //             if (submissionsTable) {
+        //                 const submissionsCount = submissionsTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;
+        //                 document.getElementById('submissions-count').textContent = `${submissionsCount} / 60`;
+
+        //                 const grades = Array.from(submissionsTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr')).map(row => {
+        //                     const gradeCell = row.cells[3];
+        //                     const gradeText = gradeCell.textContent;
+        //                     const grade = parseInt(gradeText.split('/')[0]);
+        //                     return isNaN(grade) ? 0 : grade;
+        //                 });
+        //                 const averageGrade = grades.reduce((sum, grade) => sum + grade, 0) / grades.length;
+        //                 document.getElementById('average-score').textContent = `${averageGrade.toFixed(2)} / 40 (${((averageGrade / 40) * 100).toFixed(2)}%)`;
+        //             }
+        //         });
+    </script>
+</body>
+</html>
