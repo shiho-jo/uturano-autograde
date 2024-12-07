@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: rgba(255, 255, 255, 0.5) url("asset/birmingham.jpg");
+    background: rgba(255, 255, 255, 0.5) url("birmingham.jpg");
     background-blend-mode: overlay;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -11,14 +11,14 @@ body {
 }
 
 body.modal-open::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 50;
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 48;
 }
 
 .sidebar {
@@ -35,7 +35,7 @@ body.modal-open::after {
 
 .sidebar h1 {
     margin: 0 0 20px 0;
-    font-size: 60px;
+    font-size: 48px;
     text-align: center;
 }
 
@@ -83,7 +83,7 @@ body.modal-open::after {
 
 .content h1 {
     margin: 0 0 20px;
-    font-size: 60px;
+    font-size: 48px;
     text-align: center;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
@@ -128,6 +128,55 @@ th {
 
 table tr:hover {
     background-color: #f1f1f1;
+}
+
+.toolbar {
+    margin-top: 20px;
+}
+
+.toolbar img {
+    width: 32px;
+    height: 32px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.deleteBtn {
+    width: 20px;
+}
+
+.deleteBtn:hover {
+    background-color: #CC3300;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    padding: 20px;
+    background: white;
+    border: 2px solid #CC3300;
+    border-radius: 10px;
+    z-index: 100;
+}
+
+.modal input {
+    width: 90%;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+.modal button {
+    padding: 10px;
+    background-color: #CC3300;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
 }
 
 .assignments-table {
