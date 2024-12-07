@@ -7,7 +7,7 @@ import com.github.javaparser.*;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
 
-public class javaParsing {
+public class JavaParsing {
     private Path classPath = null; // path to ".java" class file, null by default
     private String sourceCode = null; // sourcecode of class file in string
     private CompilationUnit cu = null; // CompilationUnit after parsing
@@ -17,7 +17,7 @@ public class javaParsing {
     private TreeMap<String, List<String>> methods = null; // key: method name, value: parameter types
 
 
-    public javaParsing(String pathToClass) {
+    public JavaParsing(String pathToClass) {
         this.classPath = Paths.get(pathToClass); // absolute path to the class file as parameter
     }
 
