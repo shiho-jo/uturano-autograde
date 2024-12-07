@@ -1,4 +1,4 @@
 package org.uturano;
 
-public class multiFileParser {
+public class MultiFileParser {
 }

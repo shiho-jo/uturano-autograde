@@ -1,18 +1,15 @@
 package org.uturano;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
-
-public class parseComparator {
+public class ParseComparator {
     private String codePath = null; // absolute path to code file
     private String skeletonPath = null; // absolute path to skeleton file
-    private String  errorMessages = null; // String to store error messages
+    private String errorMessages = null; // String to store error messages
     private StringBuilder errorMessageBuilder = new StringBuilder();
 
-    public parseComparator(String codePath, String skeletonPath) {
+    public ParseComparator(String codePath, String skeletonPath) {
         this.codePath = codePath;
         this.skeletonPath = skeletonPath;
         this.errorMessages = "";
@@ -20,8 +17,8 @@ public class parseComparator {
 
     public boolean comparison() throws IOException {
         // Parser objects for code and skeleton code
-        javaParsing codeParser = new javaParsing(codePath);
-        javaParsing skeletonParser = new javaParsing(skeletonPath);
+        JavaParsing codeParser = new JavaParsing(codePath);
+        JavaParsing skeletonParser = new JavaParsing(skeletonPath);
 
         // do parsing process at first
         codeParser.parsing();
@@ -40,7 +37,7 @@ public class parseComparator {
         List<String> extraImports = new ArrayList<>();
         List<String> missingClasses = new ArrayList<>();
         List<String> missingMethods = new ArrayList<>();
-        TreeMap<String, List<String> []> mismatchedParameters = new TreeMap<>();
+        HashMap<String, List<List<String>>> mismatchedParameters = new HashMap<>();
 
         // Find imports missing
         for (String skeletonImport : skeletonImports) {
@@ -102,11 +99,10 @@ public class parseComparator {
                 List<String> skeletonParameters = skeletonMethods.get(skeletonMethod);
                 List<String> codeParameters = codeMethods.get(skeletonMethod);
 
+
                 if (!skeletonParameters.equals(codeParameters)) {
-                    mismatchedParameters.put(
-                            skeletonMethod,
-                            new List[]{skeletonParameters, codeParameters}
-                    );
+                    List<List<String>> paraDifferences = Arrays.asList(skeletonParameters, codeParameters);
+                    mismatchedParameters.put(skeletonMethod, paraDifferences);
                 }
             }
         }
@@ -124,9 +120,9 @@ public class parseComparator {
         if (!mismatchedParameters.isEmpty()) {
             errorMessageBuilder.append("\nParameter mismatches in methods:\n");
             for (String method : mismatchedParameters.keySet()) {
-                List<String>[] parameters = mismatchedParameters.get(method);
-                List<String> skeletonParameters = parameters[0];
-                List<String> codeParameters = parameters[1];
+                List<List<String>> parameters = mismatchedParameters.get(method);
+                List<String> skeletonParameters = parameters.get(0);
+                List<String> codeParameters = parameters.get(1);
 
                 errorMessageBuilder.append(" Method: ").append(method)
                         .append("\n  Expected parameters: ").append(skeletonParameters)
