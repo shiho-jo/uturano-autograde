@@ -4,180 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab 7: BST Map</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-
-        .sidebar {
-            width: 250px;
-            background-color: #8C3300;
-            height: 100vh;
-            position: fixed;
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-left: 20px;
-        }
-
-        .sidebar p {
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .sidebar h2 {
-            margin: 0 0 20px 0;
-            font-size: 20px;
-            text-align: center;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .sidebar ul li {
-            margin-bottom: 10px;
-        }
-
-        .sidebar ul li a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            background-color: #AC3300;
-            border-radius: 5px;
-        }
-
-        .sidebar ul li a:hover {
-            background-color: #CC3300;
-        }
-
-        .content {
-            margin-left: 300px;
-            padding: 20px;
-        }
-
-        .content h1 {
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-        .deadline-input {
-            padding: 5px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .settings-section {
-            margin-bottom: 20px;
-        }
-
-        .settings-section label {
-            font-weight: bold;
-        }
-
-        .settings-section input,
-        .settings-section select {
-            margin-left: 10px;
-            margin-bottom: 10px;
-            padding: 5px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            position: relative;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-            border-collapse: collapse;
-            padding: 8px;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #CC3300;
-            color: white;
-        }
-
-        .average-button {
-            position: absolute;
-            top: -40px;
-            right: 10px;
-            padding: 5px 10px;
-            background-color: #CC3300;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .average-button:hover {
-            background-color: #AC3300;
-        }
-
-        .save-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #008C00;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .save-button:hover {
-            background-color: #006C00;
-        }
-
-        .remaining-tasks {
-            color: red;
-            font-weight: bold;
-        }
-
-        .table-container {
-            position: relative;
-            margin-top: 20px;
-        }
-
-        .step-indicator {
-            background-color: #f0f0f0;
-            border-left: 5px solid #008C00;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .step-indicator span.current-step {
-            font-weight: bold;
-            color: #008C00;
-        }
-        th {
-            background-color: #CC3300;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="final.css">
 </head>
 <body>
+    <div id="sidebar-container"></div>
     <div class="sidebar">
-        <p>Back to assignment list</p>
-        <h2>Lab 7: BST Map</h2>
+        <h1>CS 61A</h1>
         <ul>
-            <li><a href="#">Overview</a></li>
-            <li><a href="#">Submissions</a></li>
-            <li><a href="#">Course Settings</a></li>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
         </ul>
     </div>
+    
+    
 
     <div class="content">
         <h1 id="assignment-title">Assignment</h1>
@@ -186,9 +26,9 @@
         </div>
         <div class="settings-section">
             <label for="totalmark">totalmark:</label>
-            <input type="number" id="totalmark" value="2">
+            <input type="number" id="totalmark" value="0">
 
-            <button class="save-button" >Save</button>
+            
         </div>
 
         <div class="table-container">
@@ -241,6 +81,15 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('./sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
         const assignmentName = localStorage.getItem('assignmentName');
 
 if (assignmentName) {
@@ -251,7 +100,8 @@ if (assignmentName) {
     document.getElementById('assignment-title').textContent = ' ';
 }
 
-         function calculateAverage() {
+
+    function calculateAverage() {
     
     const totalInput = document.getElementById('totalmark');
     const totalmark = parseFloat(totalInput.value) || 0;
@@ -336,7 +186,49 @@ if (assignmentName) {
             }
         });
     });
+    document.addEventListener('DOMContentLoaded', () => {
+    const marksInputs = document.querySelectorAll('tbody input[type="number"]');
 
+    
+    marksInputs.forEach(input => {
+        input.addEventListener('input', () => {
+            updateRemaining();
+        });
+    });
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const totalInput = document.getElementById('totalmark');
+
+    
+    totalInput.addEventListener('input', () => {
+        const totalmark = parseFloat(totalInput.value) || 0;
+
+        
+        const totalElements = document.querySelectorAll('.total');
+        const numberOfTests = totalElements.length;
+        
+        totalElements.forEach(totalElement => {
+            totalElement.textContent = totalmark.toFixed(2);
+        });
+
+        
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const marksInput = row.querySelector('.marks-input');
+            const totalElement = row.querySelector('.total');
+            if (marksInput && totalElement) {
+                const marksValue = parseFloat(marksInput.value) || 0;
+                const totalValue = parseFloat(totalElement.textContent) || 0;
+                if (marksValue > totalValue) {
+                    marksInput.value = totalValue;
+                }
+            }
+        });
+
+        
+        updateRemaining();
+    });
+});
 
     </script>
 </body>
