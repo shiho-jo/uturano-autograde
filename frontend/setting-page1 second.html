@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 7</title>
+    <link rel="stylesheet" href="final.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="sidebar">
+        <h1>CS 61A</h1>
+        <ul>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
+        </ul>
+    </div>
+    
+
+    <div class="content">
+        <div class="step-indicator">
+            <p>Step Progress: <span class="Basic">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
+        </div>
+        
+        <form class="settings-form">
+            <h3>Settings</h3>
+            <label for="assignment-name">Assignment Name:</label>
+            <input type="text" id="assignment-name" value=" ">
+
+            <label for="deadlineInput">deadline:</label>
+            <input type="date" id="deadlineInput">
+
+            <label for="skeleton-folder"> Folder:</label>
+            <input type="file" id="skeleton-folder">
+
+            <label for="junit-file">JUnit Test File:</label>
+            <input type="file" id="junit-file">
+
+            <button type="button" onclick="location.href='setting3.html';">Next</button>
+        </form>
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('./sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const deadlineInput = document.getElementById('deadlineInput');
+
+        // 回显已保存的截止日期
+        const savedDeadline = localStorage.getItem('assignmentDeadline');
+        if (savedDeadline) {
+            deadlineInput.value = savedDeadline;
+        }
+
+        // 每当用户修改截止日期，保存到localStorage
+        deadlineInput.addEventListener('change', () => {
+            const selectedDate = deadlineInput.value;
+            // 将截止日期保存到localStorage中
+            localStorage.setItem('assignmentDeadline', selectedDate);
+            alert('Deadline saved');
+        });
+       });
+
+       document.querySelector('.settings-form button').addEventListener('click', () => {
+    const assignmentName = document.getElementById('assignment-name').value;
+
+    if (assignmentName) {
+        localStorage.setItem('assignmentName', assignmentName);
+    } else {
+        alert(' ');
+        return; // 如
+    }
+
+    // 重定向到下一个页面
+    location.href = 'setting3.html';
+});
+
+    </script>
+    </div>
+</body>
+</html>
