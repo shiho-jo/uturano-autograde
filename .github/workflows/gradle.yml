@@ -32,7 +32,8 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
+    - name: Clean Gradle cache
+      run: ./gradlew clean
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
@@ -60,7 +61,8 @@ jobs:
       with:
         java-version: '23'
         distribution: 'temurin'
-
+    - name: Clean Gradle cache
+      run: ./gradlew clean
     # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
