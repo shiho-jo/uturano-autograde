@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Your Code</title>
-    <link rel="stylesheet" href="submissions.css">
+    <title>Submissions</title>
+    <link rel="stylesheet" href="stylesheet.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="back-link">
-            <img src="asset/left-arrow.png" alt="Back">
-            <p>back to assignment list</p>
-        </div>
-        <h2>Lab 7: BST Map</h2>
-        <ul>
-            <li><a href="#">Overview</a></li>
-            <li><a href="#">Submissions</a></li>
-            <li><a href="#">Feedback</a></li>
-            <li><a href="#">Settings</a></li>
-        </ul>
-    </div>
+    <div id="sidebar-container"></div>
 
     <div class="content">
         <h1>Submissions</h1>
-        <table class="assignments-table">
+        <div class="toolbar">
+            <img src="asset/plus.png" alt="AddIcon" id="addBtn">
+            <img src="asset/edit.png" alt="EditIcon" id="editBtn">
+            <img src="asset/import.png" alt="ImportIcon" id="importBtn">
+        </div>
+
+        <table class="assignments-table" id="submissionsTable">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Student name</th>
                     <th>Student ID</th>
                     <th>Submission time</th>
@@ -34,19 +29,22 @@
             </thead>
             <tbody>
                 <tr>
+                    <th></th>
                     <td>Hatsune Miku</td>
                     <td>390831</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
                 <tr>
+                    <td></td>
                     <td>Mikoto Misaka</td>
                     <td>101111</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
                 <tr>
-                    <td>Tadokoro Kouji</td>
+                    <td></td>
+                    <td>Kouji Tadokoro</td>
                     <td>114514</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
@@ -54,5 +52,125 @@
             </tbody>
         </table>
     </div>
+
+    <div class="modal" id="addModal">
+        <h3>New Student</h3>
+        <input type="text" id="studentName" placeholder="Name">
+        <input type="text" id="studentID" placeholder="Student ID">
+        <button id="createBtn">Create</button>
+        <button id="cancelBtn">Cancel</button>
+        <p id="errorMsg" style="color: red; display: none;"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+        const addBtn = document.getElementById('addBtn');
+        const editBtn = document.getElementById('editBtn');
+        const addModal = document.getElementById('addModal');
+        const createBtn = document.getElementById('createBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const submissionsTable = document.getElementById('submissionsTable').getElementsByTagName('tbody')[0];
+
+        let isEditMode = false;
+
+        addBtn.onclick = function() {
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentID').value = '';
+            errorMsg.style.display = 'none';
+            addModal.style.display = 'block';
+            document.body.classList.add('modal-open');
+        };
+
+        editBtn.onclick = function() {
+            isEditMode = !isEditMode;
+            const rows = submissionsTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (isEditMode) {
+                    // Add delete button if it does not exist
+                    if (!row.getElementsByTagName('td')[0].innerHTML) {
+                        row.insertCell(0).innerHTML = `<img src="asset/x.png" class="deleteBtn" alt="Delete">`;
+                    }
+                } else {
+                    // Remove delete button
+                    if (row.getElementsByTagName('td')[0].innerHTML.includes('x.png')) {
+                        row.deleteCell(0);
+                    }
+                }
+            }
+
+            if (isEditMode) {
+                addDeleteFunctionality();
+            }
+        };
+
+        createBtn.onclick = function() {
+            const name = document.getElementById('studentName').value;
+            const id = document.getElementById('studentID').value;
+            const nameRegex = /^[A-Za-z ]+$/;
+            const idRegex = /^[0-9]{7}$/;
+
+            if (!nameRegex.test(name)) {
+                errorMsg.textContent = 'Name must be in English characters';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!idRegex.test(id)) {
+                errorMsg.textContent = 'Student ID must be a 7-digit number';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const existingIds = Array.from(submissionsTable.getElementsByTagName('tr')).map(row => row.cells[1].textContent);
+            if (existingIds.includes(id)) {
+                errorMsg.textContent = 'Student ID existed';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+            const newRow = submissionsTable.insertRow();
+            newRow.insertCell(0).innerHTML = isEditMode ? `<img src="asset/x.png" class="deleteBtn" alt="Delete">` : '';
+            newRow.insertCell(1).textContent = name;
+            newRow.insertCell(2).textContent = id;
+            newRow.insertCell(3).textContent = '';
+            newRow.insertCell(4).textContent = '';
+
+            if (isEditMode) {
+                addDeleteFunctionality();
+            }
+
+            addModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
+
+
+        cancelBtn.onclick = function() {
+            addModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
+
+        function addDeleteFunctionality() {
+            const deleteButtons = document.getElementsByClassName('deleteBtn');
+
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].onclick = function() {
+                    const row = this.parentElement.parentElement;
+                    submissionsTable.removeChild(row);
+                };
+            }
+        }
+    </script>
 </body>
 </html>
