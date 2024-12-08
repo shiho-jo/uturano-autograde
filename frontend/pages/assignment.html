@@ -12,8 +12,8 @@
     <div class="content">
         <h1>Assignment</h1>
         <div class="toolbar">
-            <img src="../asset/plus.png" alt="AddIcon" id="addBtn">
-            <img src="../asset/edit.png" alt="EditIcon" id="editBtn">
+            <img src="../asset/plus.png" alt="AddIcon" id="addIcon">
+            <img src="../asset/edit.png" alt="EditIcon" id="editIcon">
         </div>
 
         <table class="assignments-table" id="submissionsTable">
@@ -21,7 +21,7 @@
                 <tr>
                     <th></th>
                     <th>Name</th>
-                    <th>Released</th>
+                    <th>Available From</th>
                     <th>Due</th>
                     <th>Status</th>
                 </tr>
@@ -31,8 +31,8 @@
                     <td></td>
                     <td><a href="submissions.html">Lab 1</a></td>
                     <td>2024-12-01</td>
-                    <td>2024-12-30</td>
-                    <td>open</td>
+                    <td>2024-12-12</td>
+                    <td>OPEN</td>
                 </tr>
             </tbody>
         </table>
@@ -41,7 +41,7 @@
     <div class="modal" id="addModal">
         <h3>New Assignment</h3>
         <input type="text" id="assignmentName" placeholder="Name">
-        <input type="date" id="Released" placeholder="Release date">
+        <input type="date" id="AvailableFrom" placeholder="Available From">
         <input type="date" id="Due" placeholder="Due date">
         <button id="createBtn">Create</button>
         <button id="cancelBtn">Cancel</button>
@@ -56,37 +56,110 @@
                     document.getElementById('sidebar-container').innerHTML = data;
                 })
                 .catch(error => console.error('Error loading sidebar:', error));
+            
+            if (!localStorage.getItem('assignments')) {
+                const defaultAssignment = [
+                    {
+                        name: "Lab 1",
+                        availableFrom: "2024-12-01",
+                        due: "2024-12-12",
+                        status: today >= new Date("2024-12-01") && today <= new Date("2024-12-12") ? "OPEN" : "CLOSE",
+                    },
+                ];
+                localStorage.setItem('assignments', JSON.stringify(defaultAssignment));
+            }
+    
+            loadAssignmentsFromLocalStorage();
         });
-
-        const addBtn = document.getElementById('addBtn');
-        const editBtn = document.getElementById('editBtn');
+    
+        const addIcon = document.getElementById('addIcon');
+        const editIcon = document.getElementById('editIcon');
         const addModal = document.getElementById('addModal');
         const createBtn = document.getElementById('createBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const errorMsg = document.getElementById('errorMsg');
         const submissionsTable = document.getElementById('submissionsTable').getElementsByTagName('tbody')[0];
-
+        const today = new Date();
+    
         let isEditMode = false;
-
-        addBtn.onclick = function() {
+    
+        function saveAssignmentsToLocalStorage() {
+            const rows = submissionsTable.getElementsByTagName('tr');
+            const assignments = Array.from(rows).map(row => {
+                const cells = row.getElementsByTagName('td');
+                return {
+                    name: cells[1]?.textContent.trim(),
+                    availableFrom: cells[2]?.textContent.trim(),
+                    due: cells[3]?.textContent.trim(),
+                    status: cells[4]?.textContent.trim()
+                };
+            });
+            localStorage.setItem('assignments', JSON.stringify(assignments));
+        }
+    
+        function loadAssignmentsFromLocalStorage() {
+            submissionsTable.innerHTML = "";
+            const savedAssignments = JSON.parse(localStorage.getItem('assignments') || '[]');
+            savedAssignments.forEach(assignment => {
+                const newRow = submissionsTable.insertRow();
+                newRow.insertCell(0).innerHTML = "";
+                newRow.insertCell(1).innerHTML = `<a href="submissions.html">${assignment.name}</a>`;
+                newRow.insertCell(2).textContent = assignment.availableFrom;
+                newRow.insertCell(3).textContent = assignment.due;
+                newRow.insertCell(4).textContent = assignment.status;
+            });
+    
+            if (isEditMode) {
+                addDeleteButtons();
+            }
+        }
+    
+        function addDeleteButtons() {
+            const rows = submissionsTable.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.cells[0].innerHTML === "") {
+                    row.cells[0].innerHTML = `<img src="../asset/x.png" class="deleteBtn" alt="Delete">`;
+                }
+            }
+            bindDeleteFunctionality();
+        }
+    
+        function removeDeleteButtons() {
+            const rows = submissionsTable.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                row.cells[0].innerHTML = "";
+            }
+        }
+    
+        function bindDeleteFunctionality() {
+            const deleteButtons = document.getElementsByClassName('deleteBtn');
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].onclick = function() {
+                    const row = this.parentElement.parentElement;
+                    submissionsTable.removeChild(row);
+                    saveAssignmentsToLocalStorage();
+                };
+            }
+        }
+    
+        addIcon.onclick = function() {
             document.getElementById('assignmentName').value = '';
-            document.getElementById('Released').value = '';
+            document.getElementById('AvailableFrom').value = '';
             document.getElementById('Due').value = '';
             errorMsg.style.display = 'none';
             addModal.style.display = 'block';
             document.body.classList.add('modal-open');
         };
-
+    
         createBtn.onclick = function() {
             const name = document.getElementById('assignmentName').value.trim();
-            const released = document.getElementById('Released').value;
+            const availableFrom = document.getElementById('AvailableFrom').value;
             const due = document.getElementById('Due').value;
-
-            const currentDate = new Date();
-            const releaseDate = new Date(released);
+            const releaseDate = new Date(availableFrom);
             const dueDate = new Date(due);
-
-            // Validate assignment name uniqueness
+    
             let nameExists = false;
             const rows = submissionsTable.getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) {
@@ -96,79 +169,53 @@
                     break;
                 }
             }
-
-            // Validate release date and due date against current date
+            if (name === '' || releaseDate < today || dueDate < releaseDate) {
+                errorMsg.textContent = 'Release date must be later than today.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+    
             if (nameExists) {
                 errorMsg.textContent = 'Assignment name already exists. Please use a different name.';
-                errorMsg.style.display = 'block';
-            } else if (releaseDate < currentDate) {
-                errorMsg.textContent = 'Release date cannot be earlier than the current date.';
-                errorMsg.style.display = 'block';
-            } else if (dueDate < currentDate) {
-                errorMsg.textContent = 'Due date cannot be earlier than the current date.';
                 errorMsg.style.display = 'block';
             } else if (releaseDate >= dueDate) {
                 errorMsg.textContent = 'Release date must be earlier than due date.';
                 errorMsg.style.display = 'block';
             } else {
-                // Determine status based on current date
-                const status = currentDate > dueDate ? 'closed' : 'open';
-
-                // Create new row if all validations pass
+                const status = today >= releaseDate && today <= dueDate ? 'OPEN' : 'CLOSE';
+    
                 errorMsg.style.display = 'none';
                 const newRow = submissionsTable.insertRow();
-                newRow.insertCell(0).innerHTML = isEditMode ? `<img src="../asset/x.png" class="deleteBtn" alt="Delete">` : '';
+                newRow.insertCell(0).innerHTML = "";
                 newRow.insertCell(1).innerHTML = `<a href="submissions.html">${name}</a>`;
-                newRow.insertCell(2).textContent = released;
+                newRow.insertCell(2).textContent = availableFrom;
                 newRow.insertCell(3).textContent = due;
                 newRow.insertCell(4).textContent = status;
-
+    
+                saveAssignmentsToLocalStorage();
+    
                 if (isEditMode) {
-                    addDeleteFunctionality();
+                    addDeleteButtons();
                 }
-
+    
                 addModal.style.display = 'none';
                 document.body.classList.remove('modal-open');
             }
         };
-
+    
         cancelBtn.onclick = function() {
             addModal.style.display = 'none';
             document.body.classList.remove('modal-open');
         };
-
-        editBtn.onclick = function() {
+    
+        editIcon.onclick = function() {
             isEditMode = !isEditMode;
-            const rows = submissionsTable.getElementsByTagName('tr');
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                if (isEditMode) {
-                    // Add delete button if it does not exist
-                    if (!row.getElementsByTagName('td')[0].innerHTML) {
-                        row.getElementsByTagName('td')[0].innerHTML = `<img src="../asset/x.png" class="deleteBtn" alt="Delete">`;
-                    }
-                } else {
-                    // Remove delete button
-                    row.getElementsByTagName('td')[0].innerHTML = '';
-                }
-            }
-
             if (isEditMode) {
-                addDeleteFunctionality();
+                addDeleteButtons();
+            } else {
+                removeDeleteButtons();
             }
         };
-
-        function addDeleteFunctionality() {
-            const deleteButtons = document.getElementsByClassName('deleteBtn');
-
-            for (let i = 0; i < deleteButtons.length; i++) {
-                deleteButtons[i].onclick = function() {
-                    const row = this.parentElement.parentElement;
-                    submissionsTable.removeChild(row);
-                };
-            }
-        }
-    </script>
+    </script>        
 </body>
 </html>
