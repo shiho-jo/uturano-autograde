@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Settings</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="content">
+        <div class="step-indicator">
+            <p>Step Progress: <span class="Basic" style="color: green;">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
+        </div>
+        
+        <form class="settings-form">
+            <h3>Settings</h3>
+            <label for="assignment-name">Assignment Name:</label>
+            <input type="text" id="assignment-name" value=" ">
+
+            <label for="deadlineInput">Deadline:</label>
+            <input type="date" id="deadlineInput">
+
+            <label for="skeleton-folder"> Folder:</label>
+            <input type="file" id="skeleton-folder">
+
+            <label for="junit-file">JUnit Test File:</label>
+            <input type="file" id="junit-file">
+
+            <button type="button" onclick="location.href='setting3.html';">Next</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('./sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const deadlineInput = document.getElementById('deadlineInput');
+            const savedDeadline = localStorage.getItem('assignmentDeadline');
+
+            if (savedDeadline) {
+                deadlineInput.value = savedDeadline;
+            }
+
+            deadlineInput.addEventListener('change', () => {
+                const selectedDate = deadlineInput.value;
+                localStorage.setItem('assignmentDeadline', selectedDate);
+                alert('Deadline saved');
+            });
+        });
+
+       document.querySelector('.settings-form button').addEventListener('click', () => {
+            const assignmentName = document.getElementById('assignment-name').value;
+
+            if (assignmentName) {
+                localStorage.setItem('assignmentName', assignmentName);
+            } else {
+                alert(' ');
+                return;
+            }
+            
+            location.href = 'setting2.html';
+        });
+    </script>
+
+</body>
+</html>

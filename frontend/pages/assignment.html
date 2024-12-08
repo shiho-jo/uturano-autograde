@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="content">
+        <h1>Assignment</h1>
+        <div class="toolbar">
+            <img src="../asset/plus.png" alt="AddIcon" id="addBtn">
+            <img src="../asset/edit.png" alt="EditIcon" id="editBtn">
+        </div>
+
+        <table class="assignments-table" id="submissionsTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Released</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td><a href="submissions.html">Lab 1</a></td>
+                    <td>2024-12-01</td>
+                    <td>2024-12-30</td>
+                    <td>open</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal" id="addModal">
+        <h3>New Assignment</h3>
+        <input type="text" id="assignmentName" placeholder="Name">
+        <input type="date" id="Released" placeholder="Release date">
+        <input type="date" id="Due" placeholder="Due date">
+        <button id="createBtn">Create</button>
+        <button id="cancelBtn">Cancel</button>
+        <p id="errorMsg" style="color: red; display: none;"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+        const addBtn = document.getElementById('addBtn');
+        const editBtn = document.getElementById('editBtn');
+        const addModal = document.getElementById('addModal');
+        const createBtn = document.getElementById('createBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const submissionsTable = document.getElementById('submissionsTable').getElementsByTagName('tbody')[0];
+
+        let isEditMode = false;
+
+        addBtn.onclick = function() {
+            document.getElementById('assignmentName').value = '';
+            document.getElementById('Released').value = '';
+            document.getElementById('Due').value = '';
+            errorMsg.style.display = 'none';
+            addModal.style.display = 'block';
+            document.body.classList.add('modal-open');
+        };
+
+        createBtn.onclick = function() {
+            const name = document.getElementById('assignmentName').value.trim();
+            const released = document.getElementById('Released').value;
+            const due = document.getElementById('Due').value;
+
+            const currentDate = new Date();
+            const releaseDate = new Date(released);
+            const dueDate = new Date(due);
+
+            // Validate assignment name uniqueness
+            let nameExists = false;
+            const rows = submissionsTable.getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const existingName = rows[i].getElementsByTagName('td')[1].textContent.trim();
+                if (existingName === name) {
+                    nameExists = true;
+                    break;
+                }
+            }
+
+            // Validate release date and due date against current date
+            if (nameExists) {
+                errorMsg.textContent = 'Assignment name already exists. Please use a different name.';
+                errorMsg.style.display = 'block';
+            } else if (releaseDate < currentDate) {
+                errorMsg.textContent = 'Release date cannot be earlier than the current date.';
+                errorMsg.style.display = 'block';
+            } else if (dueDate < currentDate) {
+                errorMsg.textContent = 'Due date cannot be earlier than the current date.';
+                errorMsg.style.display = 'block';
+            } else if (releaseDate >= dueDate) {
+                errorMsg.textContent = 'Release date must be earlier than due date.';
+                errorMsg.style.display = 'block';
+            } else {
+                // Determine status based on current date
+                const status = currentDate > dueDate ? 'closed' : 'open';
+
+                // Create new row if all validations pass
+                errorMsg.style.display = 'none';
+                const newRow = submissionsTable.insertRow();
+                newRow.insertCell(0).innerHTML = isEditMode ? `<img src="../asset/x.png" class="deleteBtn" alt="Delete">` : '';
+                newRow.insertCell(1).innerHTML = `<a href="submissions.html">${name}</a>`;
+                newRow.insertCell(2).textContent = released;
+                newRow.insertCell(3).textContent = due;
+                newRow.insertCell(4).textContent = status;
+
+                if (isEditMode) {
+                    addDeleteFunctionality();
+                }
+
+                addModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        };
+
+        cancelBtn.onclick = function() {
+            addModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
+
+        editBtn.onclick = function() {
+            isEditMode = !isEditMode;
+            const rows = submissionsTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (isEditMode) {
+                    // Add delete button if it does not exist
+                    if (!row.getElementsByTagName('td')[0].innerHTML) {
+                        row.getElementsByTagName('td')[0].innerHTML = `<img src="../asset/x.png" class="deleteBtn" alt="Delete">`;
+                    }
+                } else {
+                    // Remove delete button
+                    row.getElementsByTagName('td')[0].innerHTML = '';
+                }
+            }
+
+            if (isEditMode) {
+                addDeleteFunctionality();
+            }
+        };
+
+        function addDeleteFunctionality() {
+            const deleteButtons = document.getElementsByClassName('deleteBtn');
+
+            for (let i = 0; i < deleteButtons.length; i++) {
+                deleteButtons[i].onclick = function() {
+                    const row = this.parentElement.parentElement;
+                    submissionsTable.removeChild(row);
+                };
+            }
+        }
+    </script>
+</body>
+</html>
