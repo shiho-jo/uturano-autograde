@@ -1,4 +1,5 @@
 package org.uturano;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -6,16 +7,17 @@ import java.util.*;
 import com.github.javaparser.*;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 
 public class JavaParsing {
-    private Path classPath = null; // path to ".java" class file, null by default
+    private Path classPath; // path to ".java" class file, null by default
     private String sourceCode = null; // sourcecode of class file in string
     private CompilationUnit cu = null; // CompilationUnit after parsing
     private List<String> imports = null; // imports list for libraries and so on
     private List<ClassOrInterfaceDeclaration> classes = null; // class declaration objects
     private List<String> classNames = null; // classes or interfaces names
     private TreeMap<String, List<String>> methods = null; // key: method name, value: parameter types
-
+    private TreeMap<String, List<String>> annotations = null; // key: method name, value: annotations
 
     public JavaParsing(String pathToClass) {
         this.classPath = Paths.get(pathToClass); // absolute path to the class file as parameter
@@ -31,7 +33,7 @@ public class JavaParsing {
         return this.sourceCode;
     }
 
-    /** method to use JavaParser to parse from source code to an CompilationUnit object */
+    /** method to use JavaParser to parse from source code to a CompilationUnit object */
     private CompilationUnit parseSourceCode() throws IOException {
         if (this.cu == null) {
             if (this.sourceCode == null) {
@@ -50,14 +52,11 @@ public class JavaParsing {
 
     /** method to get library names from import statements */
     public List<String> getImports() throws IOException {
-        // if not have the list, we just get it
         if (this.imports == null) {
             if (this.cu == null) {
                 this.parseSourceCode(); // ensure we already parsed
             }
-            // list of ImportDeclaration objects
             List<ImportDeclaration> importDeclarations = this.cu.getImports();
-            // list to store library names
             List<String> imports = new ArrayList<>();
 
             for (ImportDeclaration importDeclaration : importDeclarations) {
@@ -70,16 +69,11 @@ public class JavaParsing {
 
     /** method to get class or interface names */
     public List<String> getClasses() throws IOException {
-        // if not have the list, we just get it
         if (this.classNames == null) {
             if (this.cu == null) {
                 this.parseSourceCode(); // ensure we already parsed
             }
-
-            // list of classOrInterfaceDeclarations objects
-            this.classes =
-                    this.cu.findAll(ClassOrInterfaceDeclaration.class);
-            // list to store class or interface names
+            this.classes = this.cu.findAll(ClassOrInterfaceDeclaration.class);
             List<String> classOrInterfaceNames = new ArrayList<>();
 
             for (ClassOrInterfaceDeclaration classOrInterface : classes) {
@@ -93,25 +87,20 @@ public class JavaParsing {
 
     /** Method to get method names and parameters */
     public TreeMap<String, List<String>> getMethods() throws IOException {
-        // if not have the methods list, we just get it
         if (this.methods == null) {
             if (this.classes == null) {
                 this.getClasses(); // Ensure we have class or interface names
             }
-
-            // Initialize the TreeMap to store method names and their parameters
             TreeMap<String, List<String>> methodMap = new TreeMap<>();
             for (ClassOrInterfaceDeclaration classOrInterface : classes) {
                 for (MethodDeclaration method : classOrInterface.getMethods()) {
                     String methodName = method.getNameAsString();
 
-                    // List to store parameter types
                     List<String> parameterTypes = new ArrayList<>();
                     for (Parameter parameter : method.getParameters()) {
                         parameterTypes.add(parameter.getType().asString());
                     }
 
-                    // Add method name and parameter types to the map
                     methodMap.put(methodName, parameterTypes);
                 }
             }
@@ -120,9 +109,34 @@ public class JavaParsing {
         return this.methods;
     }
 
+    /** Method to get method names and their annotations */
+    public TreeMap<String, List<String>> getAnnotations() throws IOException {
+        if (this.annotations == null) {
+            if (this.classes == null) {
+                this.getClasses(); // Ensure we have class or interface names
+            }
+            TreeMap<String, List<String>> annotationMap = new TreeMap<>();
+            for (ClassOrInterfaceDeclaration classOrInterface : classes) {
+                for (MethodDeclaration method : classOrInterface.getMethods()) {
+                    String methodName = method.getNameAsString();
+
+                    List<String> annotationNames = new ArrayList<>();
+                    for (AnnotationExpr annotation : method.getAnnotations()) {
+                        annotationNames.add(annotation.getNameAsString());
+                    }
+
+                    annotationMap.put(methodName, annotationNames);
+                }
+            }
+            this.annotations = annotationMap;
+        }
+        return this.annotations;
+    }
+
     /** do a full parsing */
     public void parsing() throws IOException {
         this.getImports();
         this.getMethods();
+        this.getAnnotations();
     }
 }

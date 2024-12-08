@@ -38,7 +38,8 @@ public class ParseComparator {
         List<String> extraImports = new ArrayList<>();
         List<String> missingClasses = new ArrayList<>();
         List<String> missingMethods = new ArrayList<>();
-        TreeMap<String, List<String> []> mismatchedParameters = new TreeMap<>();
+        TreeMap<String, List<List<String>>> mismatchedParameters = new TreeMap<>();
+
 
         // Find imports missing
         for (String skeletonImport : skeletonImports) {
@@ -102,10 +103,11 @@ public class ParseComparator {
                 List<String> codeParameters = codeMethods.get(skeletonMethod);
 
                 if (!skeletonParameters.equals(codeParameters)) {
-                    mismatchedParameters.put(
-                            skeletonMethod,
-                            new List[]{skeletonParameters, codeParameters}
-                    );
+                    List<List<String>> parametersEach = new ArrayList<>();
+                    parametersEach.add(skeletonParameters);
+                    parametersEach.add(codeParameters);
+
+                    mismatchedParameters.put(skeletonMethod, parametersEach);
                 }
             }
         }
@@ -123,9 +125,8 @@ public class ParseComparator {
         if (!mismatchedParameters.isEmpty()) {
             errorMessageBuilder.append("\nMismatch in methods: \n");
             for (String method : mismatchedParameters.keySet()) {
-                List<String>[] parameters = mismatchedParameters.get(method);
-                List<String> skeletonParameters = parameters[0];
-                List<String> codeParameters = parameters[1];
+                List<String> skeletonParameters = mismatchedParameters.get(method).get(0);
+                List<String> codeParameters = mismatchedParameters.get(method).get(1);
 
                 errorMessageBuilder.append(" Method: ").append(method)
                         .append("\n  Expected parameters: ").append(skeletonParameters)
