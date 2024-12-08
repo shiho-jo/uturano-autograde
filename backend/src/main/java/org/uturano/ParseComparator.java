@@ -7,15 +7,16 @@ public class ParseComparator {
     private String codePath = null; // absolute path to code file
     private String skeletonPath = null; // absolute path to skeleton file
     private String errorMessages = null; // String to store error messages
-    private StringBuilder errorMessageBuilder = new StringBuilder();
+    private StringBuilder errorMessageBuilder = new StringBuilder(); // builder object for error messages
 
     public ParseComparator(String codePath, String skeletonPath) {
         this.codePath = codePath;
         this.skeletonPath = skeletonPath;
-        this.errorMessages = "";
     }
 
-    public boolean comparison() throws IOException {
+    public void comparison() throws IOException {
+        this.errorMessages = ""; // Error message string initialization
+
         // Parser objects for code and skeleton code
         JavaParsing codeParser = new JavaParsing(codePath);
         JavaParsing skeletonParser = new JavaParsing(skeletonPath);
@@ -37,7 +38,7 @@ public class ParseComparator {
         List<String> extraImports = new ArrayList<>();
         List<String> missingClasses = new ArrayList<>();
         List<String> missingMethods = new ArrayList<>();
-        HashMap<String, List<List<String>>> mismatchedParameters = new HashMap<>();
+        TreeMap<String, List<String> []> mismatchedParameters = new TreeMap<>();
 
         // Find imports missing
         for (String skeletonImport : skeletonImports) {
@@ -53,6 +54,7 @@ public class ParseComparator {
             }
         }
 
+        // export mismatch in imports to the error messages
         if(!missingImports.isEmpty() || !extraImports.isEmpty()) {
             errorMessageBuilder.append("Mismatch in import statements: \n  Missing imports: ");
             for (int i = 0; i < missingImports.size(); i++) {
@@ -99,16 +101,17 @@ public class ParseComparator {
                 List<String> skeletonParameters = skeletonMethods.get(skeletonMethod);
                 List<String> codeParameters = codeMethods.get(skeletonMethod);
 
-
                 if (!skeletonParameters.equals(codeParameters)) {
-                    List<List<String>> paraDifferences = Arrays.asList(skeletonParameters, codeParameters);
-                    mismatchedParameters.put(skeletonMethod, paraDifferences);
+                    mismatchedParameters.put(
+                            skeletonMethod,
+                            new List[]{skeletonParameters, codeParameters}
+                    );
                 }
             }
         }
 
         if (!missingMethods.isEmpty()) {
-            errorMessageBuilder.append("\nMismatch in methods:\n Missing methods: ");
+            errorMessageBuilder.append("\nMismatch in methods: \n Missing methods: ");
             for (int i = 0; i < missingMethods.size(); i++) {
                 errorMessageBuilder.append(missingMethods.get(i));
                 if (i < missingMethods.size() - 1) {
@@ -118,11 +121,11 @@ public class ParseComparator {
         }
 
         if (!mismatchedParameters.isEmpty()) {
-            errorMessageBuilder.append("\nParameter mismatches in methods:\n");
+            errorMessageBuilder.append("\nMismatch in methods: \n");
             for (String method : mismatchedParameters.keySet()) {
-                List<List<String>> parameters = mismatchedParameters.get(method);
-                List<String> skeletonParameters = parameters.get(0);
-                List<String> codeParameters = parameters.get(1);
+                List<String>[] parameters = mismatchedParameters.get(method);
+                List<String> skeletonParameters = parameters[0];
+                List<String> codeParameters = parameters[1];
 
                 errorMessageBuilder.append(" Method: ").append(method)
                         .append("\n  Expected parameters: ").append(skeletonParameters)
@@ -130,12 +133,23 @@ public class ParseComparator {
                         .append("\n");
             }
         }
-
         errorMessages = errorMessageBuilder.toString();
-        return (errorMessages.isEmpty());
     }
 
-    public String getErrorMessages() {
+    public String processComparison() throws IOException {
+        try {
+            if (this.errorMessages == null) {
+                this.comparison();
+            }
+        } catch (IOException e) {
+            this.errorMessages = ("Oops! Error occurs when loading the file! \n" + e.getMessage());
+        } catch (Exception e) {
+            if (e.getMessage() != null) { // some exceptions may not throw message
+                this.errorMessages = ("Oops! An error occurs! \n" + e.getMessage());
+            } else {
+                this.errorMessages = ("Oops! An unexpected error occurs! \n");
+            }
+        }
         return errorMessages;
     }
 }
