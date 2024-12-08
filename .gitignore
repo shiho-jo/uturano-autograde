@@ -15,3 +15,6 @@ build
 
 # Ignore all notes files
 note.md
+
+# Ignore all binary files
+backend/bin
