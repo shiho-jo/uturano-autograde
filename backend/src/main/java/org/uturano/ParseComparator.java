@@ -1,9 +1,7 @@
 package org.uturano;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ParseComparator {
     private String codePath = null; // absolute path to code file
