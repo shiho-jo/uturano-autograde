@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class parseComparator {
+public class ParseComparator {
     private String codePath = null; // absolute path to code file
     private String skeletonPath = null; // absolute path to skeleton file
     private String errorMessages = null; // String to store error messages
-    private StringBuilder errorMessageBuilder = new StringBuilder();
+    private StringBuilder errorMessageBuilder = new StringBuilder(); // builder object for error messages
 
     public ParseComparator(String codePath, String skeletonPath) {
         this.codePath = codePath;
