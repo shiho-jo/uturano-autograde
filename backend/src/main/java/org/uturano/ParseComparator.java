@@ -1,15 +1,13 @@
 package org.uturano;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
-public class parseComparator {
+public class ParseComparator {
     private String codePath = null; // absolute path to code file
     private String skeletonPath = null; // absolute path to skeleton file
     private String errorMessages = null; // String to store error messages
-    private StringBuilder errorMessageBuilder = new StringBuilder();
+    private StringBuilder errorMessageBuilder = new StringBuilder(); // builder object for error messages
 
     public ParseComparator(String codePath, String skeletonPath) {
         this.codePath = codePath;
@@ -40,7 +38,8 @@ public class parseComparator {
         List<String> extraImports = new ArrayList<>();
         List<String> missingClasses = new ArrayList<>();
         List<String> missingMethods = new ArrayList<>();
-        TreeMap<String, List<String> []> mismatchedParameters = new TreeMap<>();
+        TreeMap<String, List<List<String>>> mismatchedParameters = new TreeMap<>();
+
 
         // Find imports missing
         for (String skeletonImport : skeletonImports) {
@@ -104,10 +103,11 @@ public class parseComparator {
                 List<String> codeParameters = codeMethods.get(skeletonMethod);
 
                 if (!skeletonParameters.equals(codeParameters)) {
-                    mismatchedParameters.put(
-                            skeletonMethod,
-                            new List[]{skeletonParameters, codeParameters}
-                    );
+                    List<List<String>> parametersEach = new ArrayList<>();
+                    parametersEach.add(skeletonParameters);
+                    parametersEach.add(codeParameters);
+
+                    mismatchedParameters.put(skeletonMethod, parametersEach);
                 }
             }
         }
@@ -125,9 +125,8 @@ public class parseComparator {
         if (!mismatchedParameters.isEmpty()) {
             errorMessageBuilder.append("\nMismatch in methods: \n");
             for (String method : mismatchedParameters.keySet()) {
-                List<String>[] parameters = mismatchedParameters.get(method);
-                List<String> skeletonParameters = parameters[0];
-                List<String> codeParameters = parameters[1];
+                List<String> skeletonParameters = mismatchedParameters.get(method).get(0);
+                List<String> codeParameters = mismatchedParameters.get(method).get(1);
 
                 errorMessageBuilder.append(" Method: ").append(method)
                         .append("\n  Expected parameters: ").append(skeletonParameters)
