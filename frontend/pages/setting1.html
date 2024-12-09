@@ -37,47 +37,7 @@
     </form>
     <script>
 
-    document.querySelector('.settings-form button').addEventListener('click', () => {
-        const assignmentName = document.getElementById('assignment-name').value;
-        const deadline = document.getElementById('deadlineInput').value;
-        const codeFolder = document.getElementById('code-folder').files[0];
-        const junitFile = document.getElementById('junit-file').files[0];
-
-        if (!assignmentName || !deadline || !codeFolder || !junitFile) {
-            alert('Please fill out all fields before proceeding.');
-            return;
-        }
-        //在这里是上传的文件而不是文件名
-        const formData = new FormData();
-        formData.append('assignmentName', assignmentName);
-        formData.append('deadline', deadline);
-        formData.append('codeFolder', codeFolder);
-        formData.append('junitFile', junitFile);
-
-        console.log('Uploading data...');
-        console.log("JSON Data:", jsonData);
-
-        fetch('/api/save-settings', {
-            method: 'POST',
-            body: formData,
-            //思考是否需要jsondata 使用formdata就不需要设置content-type
-        })
-        .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-        })
-        .then(data => {
-        console.log('Success:', data);
-        alert('Settings saved successfully!');
-        })
-        .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to save settings.');
-        });
-        });
-
+   
 
 
 
