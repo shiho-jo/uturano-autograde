@@ -2,7 +2,11 @@ package org.uturano;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +24,7 @@ public class Main {
         if (args.length > 3) {
             outputDir = args[3];
         } else {
-            outputDir = System.getProperty("user.dir");
+            outputDir = System.getProperty("user.dir") + "/outputDir";
         }
 
         // Ensure the JUnit file is valid
@@ -57,7 +61,7 @@ public class Main {
             return;
         }
 
-        System.out.println("File check passed. Proceeding to JUnit test file parsing...");
+        System.out.println("File check passed. Proceeding to JUnit test execution...");
 
         // Parse annotations from the JUnit file to build a score map
         System.out.println("=== JUnit Test File Parsing ===");
@@ -72,13 +76,27 @@ public class Main {
             for (Map.Entry<String, Integer> entry : scoreMap.entrySet()) {
                 System.out.println("Test: " + entry.getKey() + " - Score: " + entry.getValue());
             }
-            System.out.println("=== Result ===");
-            System.out.println("File checking passed, and scores successfully allocated.");
+        }
+
+        // Compile and run JUnit tests
+        try {
+            Path codePath = Paths.get(codeDir);
+            Path junitPath = Paths.get(junitFilePath);
+            Path outputPath = Paths.get(outputDir);
+
+            JUnitTestRunner testRunner = new JUnitTestRunner(codePath, junitPath, outputPath);
+            testRunner.runTests();
+
+            // Output results
+            System.out.println("=== JUnit Test Results ===");
+            System.out.println(testRunner.getOutputs());
+        } catch (Exception e) {
+            System.out.println("Error during JUnit execution: " + e.getMessage());
         }
     }
 
     /**
-     * Uses JavaParsing to extract methods annotated with @Test and assigns default scores.
+     * Parses the JUnit test file to extract methods annotated with @Test and assigns default scores.
      *
      * @param junitFilePath Path to the JUnit file.
      * @return A map of test method names to their allocated scores.
