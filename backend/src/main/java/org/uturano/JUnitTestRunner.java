@@ -120,7 +120,7 @@ public class JUnitTestRunner {
         }
     }
 
-    /** Get results / error messages. */
+    /** get results or error messages */
     public String getOutputs() {
         if (outputMessages == null) {
             runTests();

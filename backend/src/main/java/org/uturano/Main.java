@@ -1,82 +1,108 @@
 package org.uturano;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
-	public static void main(String[] args) {
-		// Student's code is in /path/to/code/
-		// Skeleton code is in /path/to/skeleton/
-		String codeDir = "/path/to/code";
-		String skeletonDir = "/path/to/skeleton";
+    public static void main(String[] args) {
+        if (args.length < 3) {
+            System.out.println("Usage: java Main <codeDir> <skeletonDir> <junitFile> [outputDir]");
+            return;
+        }
 
-		// Check the directory structure
-		FileChecker fileChecker = new FileChecker(codeDir, skeletonDir);
-		String fileCheckErrors = null;
-		try {
-			fileCheckErrors = fileChecker.getErrorMessages();
-		} catch (IOException e) {
-			// Handle errors while checking directories
-			fileCheckErrors = "Error during directory check: " + e.getMessage();
-		}
+        // Get directories and JUnit file from command-line arguments
+        String codeDir = args[0];
+        String skeletonDir = args[1];
+        String junitFilePath = args[2];
 
-		if (fileCheckErrors != null && !fileCheckErrors.trim().isEmpty()) {
-			// If there are errors, show them and stop
-			System.out.println("=== File Check Errors ===");
-			System.out.println(fileCheckErrors);
-			System.out.println("Skipping JUnit tests because of file check errors.");
-			return;
-		}
+        String outputDir;
+        if (args.length > 3) {
+            outputDir = args[3];
+        } else {
+            outputDir = System.getProperty("user.dir");
+        }
 
-		// If no errors, move to JUnit tests
-		Path javaFile = Paths.get("/path/to/tests/JUnitFile.java");
-		Path outputDir = Paths.get("/path/to/tests/out");
+        // Ensure the JUnit file is valid
+        File junitFile = new File(junitFilePath);
+        if (!junitFile.exists() || !junitFile.isFile() || !junitFilePath.endsWith(".java")) {
+            System.out.println("=== File Validation ===");
+            System.out.println("Error: Invalid JUnit file provided: " + junitFilePath);
+            System.out.println("Skipping further processing due to invalid file.");
+            return;
+        }
 
-		JUnitTestRunner testRunner = new JUnitTestRunner(javaFile, outputDir);
+        // Ensure output directory exists
+        File outputDirectory = new File(outputDir);
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdirs();
+        }
 
-		// Run the tests and get results
-		Map<String, String> testResults = null;
-		try {
-			testResults = testRunner.getTestResults();
-		} catch (Exception e) {
-			// Handle errors during test execution
-			System.out.println("Error during test run: " + e.getMessage());
-			return;
-		}
+        // Perform file checking
+        System.out.println("=== File Check ===");
+        System.out.println("Checking code and skeleton directories...");
+        FileChecker fileChecker = new FileChecker(codeDir, skeletonDir);
+        String fileCheckErrors;
+        try {
+            fileCheckErrors = fileChecker.getErrorMessages();
+        } catch (IOException e) {
+            System.out.println("Error occurred during file checking: " + e.getMessage());
+            return;
+        }
 
-		// Show the results for each test
-		System.out.println("=== JUnit Test Results ===");
-		for (Map.Entry<String, String> entry : testResults.entrySet()) {
-			System.out.println("Test: " + entry.getKey() + " - " + entry.getValue());
-		}
+        if (fileCheckErrors != null && !fileCheckErrors.trim().isEmpty()) {
+            System.out.println("=== File Check Errors ===");
+            System.out.println(fileCheckErrors);
+            System.out.println("Skipping JUnit tests because of file check errors.");
+            return;
+        }
 
-		// Define test weights
-		Map<String, Integer> testWeights = Map.of(
-				"testAddition", 30,
-				"testSubtraction", 40,
-				"testMultiplication", 20,
-				"testDivision", 10
-		);
+        System.out.println("File check passed. Proceeding to JUnit test file parsing...");
 
-		int totalScore = 0;
-		int maxPossibleScore = 0;
+        // Parse annotations from the JUnit file to build a score map
+        System.out.println("=== JUnit Test File Parsing ===");
+        System.out.println("Parsing JUnit test file for methods with @Test annotation...");
+        Map<String, Integer> scoreMap = getScoreMapFromAnnotations(junitFilePath);
 
-		// Calculate the score
-		for (Map.Entry<String, Integer> entry : testWeights.entrySet()) {
-			String testName = entry.getKey();
-			int weight = entry.getValue();
-			maxPossibleScore += weight;
+        if (scoreMap.isEmpty()) {
+            System.out.println("No methods with @Test annotation found in the JUnit file.");
+            System.out.println("Score: 0");
+        } else {
+            System.out.println("=== Test Score Allocation ===");
+            for (Map.Entry<String, Integer> entry : scoreMap.entrySet()) {
+                System.out.println("Test: " + entry.getKey() + " - Score: " + entry.getValue());
+            }
+            System.out.println("=== Result ===");
+            System.out.println("File checking passed, and scores successfully allocated.");
+        }
+    }
 
-			String result = testResults.get(testName);
-			if (result != null && result.startsWith("Passed")) {
-				totalScore += weight;
-			}
-		}
+    /**
+     * Uses JavaParsing to extract methods annotated with @Test and assigns default scores.
+     *
+     * @param junitFilePath Path to the JUnit file.
+     * @return A map of test method names to their allocated scores.
+     */
+    private static Map<String, Integer> getScoreMapFromAnnotations(String junitFilePath) {
+        Map<String, Integer> scoreMap = new TreeMap<>();
+        JavaParsing parser = new JavaParsing(junitFilePath);
 
-		// Show the final score
-		System.out.println("=== Scoring ===");
-		System.out.println("Your score is: " + totalScore + "/" + maxPossibleScore);
-	}
+        try {
+            TreeMap<String, List<String>> annotations = parser.getAnnotations(); // Get method annotations
+            for (Map.Entry<String, List<String>> entry : annotations.entrySet()) {
+                String methodName = entry.getKey();
+                List<String> annotationNames = entry.getValue();
+
+                // Check for @Test annotation
+                if (annotationNames.contains("Test")) {
+                    int defaultScore = 10; // Assign a default score for each test method
+                    scoreMap.put(methodName, defaultScore);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error parsing JUnit file: " + e.getMessage());
+        }
+
+        return scoreMap;
+    }
 }
