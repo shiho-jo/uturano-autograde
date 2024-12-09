@@ -14,7 +14,6 @@
         <div class="toolbar">
             <img src="../asset/plus.png" alt="AddIcon" id="addBtn">
             <img src="../asset/edit.png" alt="EditIcon" id="editBtn">
-            <img src="../asset/import.png" alt="ImportIcon" id="importBtn">
         </div>
 
         <table class="assignments-table" id="submissionsTable">
@@ -37,20 +36,24 @@
                 </tr>
                 <tr>
                     <td></td>
-                    <td>Mikoto Misaka</td>
+                    <td><a href="grade.html">Mikoto Misaka</a></td>
                     <td>101111</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
                 <tr>
                     <td></td>
-                    <td>Kouji Tadokoro</td>
+                    <td><a href="grade.html">Kouji Tadokoro</a></td>
                     <td>114514</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
             </tbody>            
         </table>
+        <p>Instruction: </p>
+        <p>- Data will be saved when table is edited.</p>
+        <p>- Click pen icon again or refresh this page to exit editing mode</p>
+        <p>- To see autograde result, click student's name.</p>
     </div>
 
     <div class="modal" id="addModal">
@@ -114,7 +117,7 @@
             const name = document.getElementById('studentName').value;
             const id = document.getElementById('studentID').value;
             const nameRegex = /^[A-Za-z ]+$/;
-            const idRegex = /^[0-9]{7}$/;
+            const idRegex = /^[0-9]{6}$/;
 
             if (!nameRegex.test(name)) {
                 errorMsg.textContent = 'Name must be in English characters';
@@ -123,7 +126,7 @@
             }
 
             if (!idRegex.test(id)) {
-                errorMsg.textContent = 'Student ID must be a 7-digit number';
+                errorMsg.textContent = 'Student ID must be a 6-digit number';
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -143,10 +146,10 @@
 
             const newRow = submissionsTable.insertRow();
             newRow.insertCell(0).innerHTML = isEditMode ? `<img src="../asset/x.png" class="deleteBtn" alt="Delete">` : '';
-            newRow.insertCell(1).textContent = name;
+            newRow.insertCell(1).innerHTML = `<a href="grade.html">${name}</a>`;
             newRow.insertCell(2).textContent = id;
-            newRow.insertCell(3).textContent = ''; // to be fill
-            newRow.insertCell(4).textContent = ''; // to be fill
+            newRow.insertCell(3).textContent = "to be fill";
+            newRow.insertCell(4).textContent = "to be fill";
 
             if (isEditMode) {
                 addDeleteFunctionality();
