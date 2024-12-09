@@ -1,0 +1,17 @@
+{
+    "name": "uturano-frontend",
+    "version": "1.0.0",
+    "description": "Frontend for Uturano-autograde",
+    "scripts": {
+      "test": "jest ---coverage"
+    },
+    "dependencies": {
+      "jsdom": "^22.0.0"
+    },
+    "devDependencies": {
+      "jest": "^29.2.0"
+    },
+    "license": "MIT"
+  }
+  
+  

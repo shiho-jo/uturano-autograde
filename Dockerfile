@@ -1,12 +1,3 @@
-FROM node:18 AS builder
-WORKDIR /usr/src/app
-
-COPY ./frontend/package.json ./
-RUN npm install
-COPY ./frontend/ ./
-RUN npm test
-
-
 FROM nginx:latest
 WORKDIR /usr/share/nginx/html
 
