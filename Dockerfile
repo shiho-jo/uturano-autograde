@@ -1,3 +1,4 @@
+# Frontend: Network
 FROM nginx:latest
 WORKDIR /usr/share/nginx/html
 
@@ -11,9 +12,8 @@ EXPOSE 80
 EXPOSE 443
 
 
-
+# Frontend: Test
 FROM node:18
-
 WORKDIR /usr/src/app
 
 COPY ./frontend/package*.json ./
