@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autograder Results</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="content">
+        <h1>Autograder Results</h1>
+
+        <!-- File Check Section -->
+        <div class="results-section" id="file-check-section">
+            <h2>File Checking Results</h2>
+            <table class="results-table1" id="file-check-table">
+                <!-- Content dynamically generated -->
+            </table>
+        </div>
+
+        <!-- JUnit Test Results Section -->
+        <div class="results-section" id="junit-results-section" style="display: none;">
+            <h2>JUnit Test Results</h2>
+            <table class="results-table2" id="junit-results-table">
+                <!-- Content dynamically generated -->
+            </table>
+            <div id="junit-summary"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+        
+        // Mock data for demonstration
+        const fileCheckPassed = true; // Change to false to simulate failure
+        const fileCheckResults = [
+            { name: "File Checking", details: "details" }
+        ];
+        const junitResults = [
+            { test: "testName", status: "Passed", details: "details" },
+            { test: "testName", status: "Passed", details: "details" },
+            { test: "testName", status: "Failed", details: "details" }
+        ];
+        const junitSummary = { total: 3, passed: 2, failed: 1, ignored: 0, score: 70, maxScore: 100 };
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Populate File Check Results
+            const fileCheckTable = document.getElementById("file-check-table");
+            fileCheckResults.forEach(result => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${result.name}</td><td>${result.details}</td>`;
+                fileCheckTable.appendChild(row);
+            });
+
+            // Show JUnit Test Results only if File Check Passed
+            if (fileCheckPassed) {
+                document.getElementById("junit-results-section").style.display = "block";
+                const junitTable = document.getElementById("junit-results-table");
+
+                junitResults.forEach(result => {
+                    const row = document.createElement("tr");
+                    const statusClass = result.status === "Passed" ? "passed" : "failed";
+                    row.innerHTML = `<td>${result.test}</td><td class="${statusClass}">${result.status}</td><td>${result.details}</td>`;
+                    junitTable.appendChild(row);
+                });
+
+                // Add Summary
+                const summaryDiv = document.getElementById("junit-summary");
+                summaryDiv.innerHTML = `
+                    <p class="resultStatic">Total Tests: ${junitSummary.total}</p>
+                    <p class="resultStatic">Passed: ${junitSummary.passed}</p>
+                    <p class="resultStatic">Failed: ${junitSummary.failed}</p>
+                    <p class="resultStatic">Ignored: ${junitSummary.ignored}</p>
+                    <p class="resultStatic">Your score is: ${junitSummary.score}/${junitSummary.maxScore}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

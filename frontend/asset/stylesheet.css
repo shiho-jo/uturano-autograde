@@ -311,3 +311,60 @@ table tr:hover {
 .assignments-table tr:hover {
     background-color: #f1f1f1;
 }
+
+.results-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.results-section h2 {
+    margin-top: 0;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.results-table th,
+.results-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.results-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.passed {
+    color: green;
+}
+
+.failed {
+    color: red;
+}
+
+.results-table1 th:first-child,
+.results-table1 td:first-child,
+.results-table2 th:first-child,
+.results-table2 td:first-child,
+.results-table2 th:nth-child(2),
+.results-table2 td:nth-child(2) {
+    width: 20%;
+    word-wrap: break-word;
+}
+
+.resultStatic {
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+.resultStatic:nth-child(2) { color: green; }
+.resultStatic:nth-child(3) { color: red; }
+.resultStatic:nth-child(4) { color: grey; }
+.resultStatic:last-child { color: blue; }
