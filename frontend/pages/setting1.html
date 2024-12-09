@@ -9,13 +9,9 @@
 <body>
     <div id="sidebar-container"></div>
 
-    
-    
     <div class="content">
         <div class="step-indicator">
-            <p>Step Progress: <span class="Basic" style="color: green;">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
-
-
+            <p>Step Progress: <span class="stepProgress"">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
         </div>
         
         <form class="settings-form">
@@ -36,11 +32,6 @@
         </form>
     </form>
     <script>
-
-   
-
-
-
         document.addEventListener("DOMContentLoaded", function() {
             fetch('./sidebar.html')
                 .then(response => response.text())
@@ -66,22 +57,17 @@
        });
 
        document.querySelector('.settings-form button').addEventListener('click', () => {
-    const assignmentName = document.getElementById('assignment-name').value;
+       const assignmentName = document.getElementById('assignment-name').value;
 
-    if (assignmentName) {
-        localStorage.setItem('assignmentName', assignmentName);
-    } else {
-        alert(' ');
-        return;
-    }
+        if (assignmentName) {
+            localStorage.setItem('assignmentName', assignmentName);
+        } else {
+            alert(' ');
+            return;
+        }
 
-    location.href = 'setting2.html';
-});
-
-
-    
-
-
+        location.href = 'setting2.html';
+        });
     </script>
     </div>
 </body>
