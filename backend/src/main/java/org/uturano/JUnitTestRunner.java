@@ -35,33 +35,32 @@ public class JUnitTestRunner {
             throw new IllegalStateException("No JavaCompiler found. Ensure you are running this with a JDK, not a JRE.");
         }
 
-        // ensure output dir exists
+        // Ensure output dir exists
         if (!Files.exists(outputDir)) {
             Files.createDirectories(outputDir);
         }
 
-        // collect all java files needed
+        // Collect all Java files needed
         List<String> sourceFiles = new ArrayList<>();
         Files.walk(codeDir)
                 .filter(path -> path.toString().endsWith(".java"))
                 .forEach(path -> sourceFiles.add(path.toString()));
 
-        // 添加 JUnit 测试文件
+        // Add JUnit test file
         sourceFiles.add(junitFilePath.toString());
 
-        // 创建编译参数列表
+        // Create compilation arguments
         List<String> args = new ArrayList<>();
         args.add("-d");
         args.add(outputDir.toString());
         args.addAll(sourceFiles);
 
-        // 编译文件
+        // Compile files
         int result = compiler.run(null, null, null, args.toArray(new String[0]));
         if (result != 0) {
             throw new IOException("Compilation failed with exit code: " + result);
         }
     }
-
 
     /** Run JUnit tests */
     public void runTests() {
@@ -74,7 +73,7 @@ public class JUnitTestRunner {
             Class<?> junitClass = loader.loadClass(junitClassName);
 
             // Run JUnit tests
-            System.out.println("Running JUnit tests...");
+            System.out.println("Running JUnit tests for class: " + junitClassName);
             Result result = JUnitCore.runClasses(junitClass);
 
             // Collect results
@@ -95,11 +94,13 @@ public class JUnitTestRunner {
         }
     }
 
+    /** Returns the collected output messages */
     public String getOutputs() {
-        return outputMessages.toString(); // Return output messages
+        return outputMessages.toString();
     }
 
+    /** Returns the test results as a map of test names to results */
     public Map<String, String> getTestResults() {
-        return testResults; // Return test results
+        return testResults;
     }
 }
