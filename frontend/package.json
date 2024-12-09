@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Frontend for Uturano-autograde",
     "scripts": {
-      "test": "jest ---coverage"
+      "test": "jest --coverage"
     },
     "dependencies": {
       "jsdom": "^22.0.0"
