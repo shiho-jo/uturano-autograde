@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab 7</title>
-    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="../asset/stylesheet.css">
 </head>
 <body>
     <div id="sidebar-container"></div>
@@ -43,7 +43,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
         const deadlineInput = document.getElementById('deadlineInput');
-
         const savedDeadline = localStorage.getItem('assignmentDeadline');
         if (savedDeadline) {
             deadlineInput.value = savedDeadline;
