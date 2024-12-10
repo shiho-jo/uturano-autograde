@@ -378,3 +378,11 @@ table tr:hover {
 .resultStatic:nth-child(3) { color: red; }
 .resultStatic:nth-child(4) { color: grey; }
 .resultStatic:last-child { color: blue; }
+
+.current-step {
+    color: green;
+}
+
+.remaining-hint {
+    color: blue;
+}
