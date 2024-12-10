@@ -90,7 +90,7 @@ body.modal-open::after {
 
 .content h2 {
     margin: 0 0 20px;
-    font-size: 28px;
+    font-size: 40px;
 }
 
 .content p {
@@ -385,4 +385,50 @@ table tr:hover {
 
 .remaining-hint {
     color: blue;
+}
+
+#loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    text-align: center;
+    padding-top: 200px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.button-container {
+    display: flex;
+    gap: 50px;
+}
+
+.average-button, .save-button {
+    padding: 10px 15px;
+    font-size: 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.average-button {
+    background-color: rgb(68, 68, 245);
+    color: white;
+}
+
+.save-button {
+    background-color: green;
+    color: white;
 }
