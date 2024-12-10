@@ -4,6 +4,9 @@ plugins {
     java
 }
 
+dependencies {
+    implementation("io.javalin:javalin:5.6.0") // 替换为 Javalin 的最新版本
+}
 group = "org.uturano"
 version = "1.0-Ihumke-SNAPSHOT"
 
