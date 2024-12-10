@@ -13,13 +13,12 @@ EXPOSE 443
 
 
 # Frontend: Test
-FROM node:18
+FROM node:18 as test-env
 WORKDIR /usr/src/app
 
 COPY ./frontend/package*.json ./
-
 RUN npm install
-RUN npm install --save-dev jest-environment-jsdom
+RUN npm install --save-dev jest jest-environment-jsdom
 
 ENV PATH="/usr/src/app/node_modules/.bin:$PATH"
 
