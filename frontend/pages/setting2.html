@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 7: BST Map</title>
+    <title>Settings</title>
     <link rel="stylesheet" href="../asset/stylesheet.css">
 </head>
 <body>
@@ -98,7 +98,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-        fetch('/api/get-settings')
+        fetch('http://localhost:8080/api/get-settings')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch settings data.');

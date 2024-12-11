@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submission Page</title>
     <link rel="stylesheet" href="../asset/stylesheet.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/3.5.1/layer.min.js"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -16,119 +21,243 @@
         </ul>
     </div>
 
-    <div class="content">
-        <!-- Header Section -->
-        <div class="details-header">
-            <h2>Student Details</h2>
-            <div class="button-container">
-                <button id="uploadButton" class="average-button">Upload</button>
-                <button id="submitButton" class="save-button">Submit</button>
-            </div>
-        </div>
-
-        <!-- Student Details Section -->
-        <div id="submission-details">
-            <p>Student: Unknown</p>
-            <p>Student ID: Unknown</p>
-            <p>Overall Score: 80/100(backend)</p>
-        </div>
-
-        <!-- Test Summary Section -->
-        <div id="test-summary">
-            <h2 id="test-summary-title">Passed Test: 0/0</h2>
-            <table class="assignments-table">
-                <thead>
-                    <tr>
-                        <th>Test Name</th>
-                        <th>Mark</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="test-summary-body">
-                    <tr>
-                        <td>Test Name 1(backend)</td>
-                        <td>40(backend)</td>
-                        <td class="passed">Passed</td>
-                    </tr>
-                    <tr>
-                        <td>Test Name 2(backend)</td>
-                        <td>40(backend)</td>
-                        <td class="passed">Passed</td>
-                    </tr>
-                    <tr>
-                        <td>Test Name 3(backend)</td>
-                        <td>40(backend)</td>
-                        <td class="failed">Failed</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Autograder Results Section -->
-        <div id="autograder-results">
-            <h2>Autograder Results</h2>
-            <div class="results-section">
-                <h3>File Checking</h3>
-                <p>(backend)</p>
-            </div>
-            <div class="results-section">
-                <h3>Test 1(backend)</h3>
-                <p>(backend)</p>
-            </div>
-            <div class="results-section">
-                <h3>Test 2(backend)</h3>
-                <p>(backend)</p>
-            </div>
+<div class="content">
+    <!-- Header Section -->
+    <div class="details-header">
+        <h2>Student Details</h2>
+        <div class="button-container">
+            <input type="file" id="fileInput" style="display: none;" multiple>
+            <button id="uploadButton" class="average-button">Upload</button>
+            <button id="submitButton" class="save-button">Submit</button>
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Get URL query parameters
-            const params = new URLSearchParams(window.location.search);
-            const studentName = params.get("name") || "Unknown";
-            const studentID = params.get("id") || "Unknown";
+    <!-- Student Details Section -->
+    <div id="submission-details">
+        <p>Student: Unknown</p>
+        <p>Student ID: Unknown</p>
+        <p>Overall Score: 80/100(backend)</p>
+    </div>
 
-            // Update student information dynamically
-            const submissionDetails = document.getElementById("submission-details");
-            const studentDetails = submissionDetails.getElementsByTagName("p");
-            studentDetails[0].textContent = `Student: ${studentName}`;
-            studentDetails[1].textContent = `Student ID: ${studentID}`;
+    <!-- Test Summary Section -->
+    <div id="test-summary">
+        <h2 id="test-summary-title">Passed Test: 0/0</h2>
+        <table class="assignments-table">
+            <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Mark</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="test-summary-body">
+            <!--            <tr>-->
+            <!--                <td>Test Name 1(backend)</td>-->
+            <!--                <td>40(backend)</td>-->
+            <!--                <td class="passed">Passed</td>-->
+            <!--            </tr>-->
+            <!--            <tr>-->
+            <!--                <td>Test Name 2(backend)</td>-->
+            <!--                <td>40(backend)</td>-->
+            <!--                <td class="passed">Passed</td>-->
+            <!--            </tr>-->
+            <!--            <tr>-->
+            <!--                <td>Test Name 3(backend)</td>-->
+            <!--                <td>40(backend)</td>-->
+            <!--                <td class="failed">Failed</td>-->
+            <!--            </tr>-->
+            </tbody>
+        </table>
+    </div>
 
-            // Calculate pass and fail tests
-            const testSummaryBody = document.getElementById("test-summary-body");
-            const rows = testSummaryBody.getElementsByTagName("tr");
-            let passedCount = 0;
-            let totalCount = rows.length;
+    <!-- Autograder Results Section -->
+    <div id="autograder-results">
+        <h2>Autograder Results</h2>
+<!--        <div class="results-section">-->
+<!--            <h3>File Checking</h3>-->
+<!--            <p>(backend)</p>-->
+<!--        </div>-->
+<!--        <div class="results-section">-->
+<!--            <h3>File Checking</h3>-->
+<!--            <p>(backend)</p>-->
+<!--        </div>-->
+    </div>
+</div>
 
-            for (let row of rows) {
-                const statusCell = row.getElementsByTagName("td")[2];
-                if (statusCell && statusCell.classList.contains("passed")) {
-                    passedCount++;
-                }
+<script>
+    var uploadButton = document.getElementById('uploadButton');
+    var fileInput = document.getElementById('fileInput');
+    uploadButton.addEventListener('click', function () {
+        fileInput.click();
+    });
+    fileInput.addEventListener('change', function (event) {
+        var files = event.target.files;
+        console.log('number of files：'+files.length)
+        if (files.length === 0) {
+            alert('No files were selected.');
+            return;
+        }
+        var formData = new FormData();
+        for (var i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+        formData.append('type', 2);
+        var folder
+        if (files.length === 1) {
+            folder = '36c3125911d528d937cfad378ef33203'
+        }else if (files.length === 2) {
+            folder = 'cd17cec234d52c30ed055cca6d63c994'
+        }
+        formData.append('folder', folder);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:8080/api/upload', true);
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = xhr.response;
+                console.log('type 2 is the data', response);
+                layer.msg('skeleton upload successfully', {
+                    icon: 6,
+                    time: 2000
+                });
+                calcScore(folder)
+            } else {
+                layer.msg('Skeleton Upload failed:', {
+                    icon: 2,
+                    time: 2000
+                });
+                console.error('Skeleton Upload failed:', xhr.statusText);
             }
+        };
+        xhr.send(formData);
+    });
 
-            // Updated Passed Test title
-            const testSummaryTitle = document.getElementById("test-summary-title");
-            testSummaryTitle.textContent = `Passed Test: ${passedCount}/${totalCount}`;
+    function calcScore(folder) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:8080/api/score', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        var data = `folder=${encodeURIComponent(folder)}`;
+        xhr.responseType = 'json';
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = xhr.response;
+                console.log('Received data:', response);
 
-            // File upload and submit function
-            const uploadButton = document.getElementById("uploadButton");
-            const submitButton = document.getElementById("submitButton");
-            const loadingOverlay = document.getElementById("loading-overlay");
+                var testSummaryBody = document.getElementById("test-summary-body");
+                testSummaryBody.innerHTML = '';
+                Object.keys(response.result).forEach(function (testCase) {
+                    if (testCase.startsWith('Test:')) {
+                        var score = response.result[testCase];
+                        var row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${testCase}</td>
+                            <td>${score}</td>
+                            <td class="passed">passed</td>
+                        `;
+                        testSummaryBody.appendChild(row);
+                    }
+                });
 
-            uploadButton.addEventListener("click", function () {
-                alert("File upload functionality is not implemented yet.");
-            });
+                var testSummaryTitle = document.getElementById("test-summary-title");
+                testSummaryTitle.textContent = "Passed Test: " + response.result.passedCount + "/" + response.result.runCount;
 
-            submitButton.addEventListener("click", function () {
-                loadingOverlay.style.display = "block";
-                setTimeout(() => {
-                    loadingOverlay.style.display = "none";
-                    alert("File has been submitted to the backend.");
-                }, 2000); // TODO: Simulated loading delay, change to actual API call later
-            });
-        });
-    </script>
+                var autograderResultsBody = document.getElementById("autograder-results");
+                autograderResultsBody.innerHTML = '';
+
+                var resultsSection = document.createElement("div");
+                resultsSection.className = "results-section";
+
+                var header = document.createElement("h3");
+                header.textContent = 'File Check';
+                resultsSection.appendChild(header);
+
+                var paragraph = document.createElement("p");
+                paragraph.textContent = response.result['File Check'];
+                resultsSection.appendChild(paragraph);
+                autograderResultsBody.appendChild(resultsSection);
+
+
+                var resultsSection = document.createElement("div");
+                resultsSection.className = "results-section";
+
+                var header = document.createElement("h3");
+                header.textContent = 'JUnit Test File Parsing';
+                resultsSection.appendChild(header);
+
+                var paragraph = document.createElement("p");
+                paragraph.textContent = response.result['JUnit Test File Parsing'];
+                resultsSection.appendChild(paragraph);
+                autograderResultsBody.appendChild(resultsSection);
+
+                var resultsSection = document.createElement("div");
+                resultsSection.className = "results-section";
+
+                var header = document.createElement("h3");
+                header.textContent = 'JUnit Test Results';
+                resultsSection.appendChild(header);
+
+                var paragraph = document.createElement("p");
+                paragraph.textContent = response.result['JUnit Test Results'];
+                resultsSection.appendChild(paragraph);
+                autograderResultsBody.appendChild(resultsSection);
+
+            } else {
+                console.error('Upload failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function () {
+            console.error('Request error:', xhr.statusText);
+        };
+        xhr.send(data);
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get URL query parameters
+        const params = new URLSearchParams(window.location.search);
+        const studentName = params.get("name") || "Unknown";
+        const studentID = params.get("id") || "Unknown";
+
+        // Update student information dynamically
+        const submissionDetails = document.getElementById("submission-details");
+        const studentDetails = submissionDetails.getElementsByTagName("p");
+        studentDetails[0].textContent = `Student: ${studentName}`;
+        studentDetails[1].textContent = `Student ID: ${studentID}`;
+        
+        // Calculate pass and fail tests
+        const testSummaryBody = document.getElementById("test-summary-body");
+        const rows = testSummaryBody.getElementsByTagName("tr");
+        let passedCount = 0;
+        let totalCount = rows.length;
+        
+    //     for (let row of rows) {
+    //         const statusCell = row.getElementsByTagName("td")[2];
+    //         if (statusCell && statusCell.classList.contains("passed")) {
+    //             passedCount++;
+    //         }
+    //     }
+        
+    //     // Updated Passed Test title
+    //     const testSummaryTitle = document.getElementById("test-summary-title");
+    //     testSummaryTitle.textContent = `Passed Test: ${passedCount}/${totalCount}`;
+        
+    //     // File upload and submit function
+    //     const uploadButton = document.getElementById("uploadButton");
+    //     const submitButton = document.getElementById("submitButton");
+    //     const loadingOverlay = document.getElementById("loading-overlay");
+        
+    //     uploadButton.addEventListener("click", function () {
+    //         alert("File upload functionality is not implemented yet.");
+    //     });
+        
+    //     submitButton.addEventListener("click", function () {
+    //         loadingOverlay.style.display = "block";
+    //         setTimeout(() => {
+    //             loadingOverlay.style.display = "none";
+    //             alert("File has been submitted to the backend.");
+    //         }, 1000);
+    //     });
+    });
+</script>
 </body>
 </html>
