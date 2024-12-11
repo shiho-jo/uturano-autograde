@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="../asset/stylesheet.css">
 </head>
 <body>
-    <div id="sidebar-container"></div>
+    <div class="sidebar">
+        <h1>CS 61B</h1>
+        <ul>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
+        </ul>
+    </div>
 
     <div class="sidebar">
         <h1>CS 61A</h1>
@@ -135,14 +142,6 @@
         });
         
         document.addEventListener("DOMContentLoaded", function() {
-            // Load Sidebar
-            fetch('./sidebar.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-
             // Set Assignment Title
             const assignmentName = localStorage.getItem('assignmentName');
             document.getElementById('assignment-title').textContent = assignmentName || 'Assignment';
