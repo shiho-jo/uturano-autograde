@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 7</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    
+    
+    <div class="content">
+        <div class="step-indicator">
+            <p>Step Progress: <span class="Basic" style="color: green;">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
+
+
+        </div>
+        
+        <form class="settings-form">
+            <h3>Settings</h3>
+            <label for="assignment-name">Assignment Name:</label>
+            <input type="text" id="assignment-name" value=" ">
+
+            <label for="deadlineInput">deadline:</label>
+            <input type="date" id="deadlineInput">
+
+            <label for="code-folder"> Folder:</label>
+            <input type="file" id="code-folder" webkitdirectory>
+
+            <label for="junit-file">JUnit Test File:</label>
+            <input type="file" id="junit-file">
+
+            <button type="button" onclick="location.href='setting2 - javalin.html';">Next</button>
+        </form>
+
+    <script>
+        document.querySelector('button[type="button"]').addEventListener('click', async () => {
+        const assignmentName = document.getElementById('assignment-name').value;
+        const codeFolder = document.getElementById('code-folder').files;
+        const junitFile = document.getElementById('junit-file').files[0];
+
+        if (!assignmentName) {
+            alert(' ');
+            return;
+        }
+
+       
+        const formData = new FormData();
+        formData.append('assignmentName', assignmentName);
+        formData.append('junitFile', junitFile);
+
+       
+        for (let i = 0; i < codeFolder.length; i++) {
+            formData.append('codeFiles[]', codeFolder[i]);
+        }
+
+        
+
+        try {
+           
+            const response = await fetch('http://localhost:8080/api/save-settings', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(`Settings saved successfully! Path: ${result.path}`);
+                console.log(result);
+                location.href = "setting2 - javalin.html"; // 跳转到下一步页面
+            } else {
+                alert("Failed to save settings. Please check your inputs.");
+            }
+            } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+           }
+           });
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('./sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-container').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading sidebar:', error));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const deadlineInput = document.getElementById('deadlineInput');
+
+        const savedDeadline = localStorage.getItem('assignmentDeadline');
+        if (savedDeadline) {
+            deadlineInput.value = savedDeadline;
+        }
+
+        deadlineInput.addEventListener('change', () => {
+            const selectedDate = deadlineInput.value;
+            localStorage.setItem('assignmentDeadline', selectedDate);
+            alert('Deadline saved');
+        });
+       });
+
+       document.querySelector('.settings-form button').addEventListener('click', () => {
+    const assignmentName = document.getElementById('assignment-name').value;
+
+    if (assignmentName) {
+        localStorage.setItem('assignmentName', assignmentName);
+    } else {
+        alert(' ');
+        return;
+    }
+
+    location.href = 'setting2 - javalin.html';
+});
+
+
+    
+
+
+    </script>
+    </div>
+</body>
+</html>
