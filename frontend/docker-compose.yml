@@ -9,11 +9,11 @@ services:
       - "8080:80"
       - "8443:443"
     volumes:
-      - ./frontend/pages:/usr/share/nginx/html
-      - ./frontend/asset:/usr/share/nginx/html/asset
-      - ./frontend/config/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/config/cert.pem:/etc/nginx/cert.pem
-      - ./frontend/config/cert.key:/etc/nginx/cert.key
+      - ./pages:/usr/share/nginx/html
+      - ./asset:/usr/share/nginx/html/asset
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./config/cert.pem:/etc/nginx/cert.pem
+      - ./config/cert.key:/etc/nginx/cert.key
             
   ngrok:
     image: ngrok/ngrok
