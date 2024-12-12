@@ -19,3 +19,9 @@ build
 
 # Ignore all binary files
 backend/bin
+
+# Ignore all compiled .class files
+.class
+
+# Ignore demo default outputDir
+backend/default/outputDir/
