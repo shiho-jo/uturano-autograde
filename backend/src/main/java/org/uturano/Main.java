@@ -11,7 +11,7 @@ import java.util.TreeMap;
 public class Main {
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.out.println("Usage: java Main <codeDir> <skeletonDir> <junitFile> [outputDir]");
+            System.out.println("Usage: java Main <codeDir> <skeletonDir> <junitFile> <outputDir>");
             return;
         }
 
@@ -78,29 +78,46 @@ public class Main {
             }
         }
 
-        // Compile and run JUnit tests
+        // Compile and run JUnit tests to output path (because we need them in the same dir to ensure it works)
         try {
             Path codePath = Paths.get(codeDir);
             Path junitPath = Paths.get(junitFilePath);
             Path outputPath = Paths.get(outputDir);
 
+            System.out.println("=== Compiling and Running Codes ===");
             JUnitTestRunner testRunner = new JUnitTestRunner(codePath, junitPath, outputPath);
             testRunner.runTests();
 
             // Output results
             System.out.println("=== JUnit Test Results ===");
-            System.out.println(testRunner.getOutputs());
+            System.out.println(testRunner.getOutputs().trim()); // avoid extra line break
+
+            // Calculate final score
+            Map<String, String> testResults = testRunner.getTestResults();
+            int totalScore = 0;
+            int earnedScore = 0;
+
+            // Iterate through the scoreMap using keys
+            for (String testName : scoreMap.keySet()) {
+                int testScore = scoreMap.get(testName);
+                totalScore += testScore;
+
+                // Check if the test passed
+                if (!testResults.containsKey(testName) || !testResults.get(testName).startsWith("Failed")) {
+                    earnedScore += testScore;
+                }
+            }
+
+            System.out.println("=== Final Score ===");
+            System.out.println("Total Score: " + totalScore);
+            System.out.println("Earned Score: " + earnedScore);
+
         } catch (Exception e) {
             System.out.println("Error during JUnit execution: " + e.getMessage());
         }
     }
 
-    /**
-     * Parses the JUnit test file to extract methods annotated with @Test and assigns default scores.
-     *
-     * @param junitFilePath Path to the JUnit file.
-     * @return A map of test method names to their allocated scores.
-     */
+    /** get a map from dynamically read @Test annotation using JavaParsing */
     private static Map<String, Integer> getScoreMapFromAnnotations(String junitFilePath) {
         Map<String, Integer> scoreMap = new TreeMap<>();
         JavaParsing parser = new JavaParsing(junitFilePath);

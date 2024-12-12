@@ -96,9 +96,10 @@ public class ParseComparator {
         // Find missing parameter or differences
         for (String skeletonMethod : skeletonMethods.keySet()) {
             if (!codeMethods.containsKey(skeletonMethod)) {
+                // Add methods missing in code
                 missingMethods.add(skeletonMethod);
             } else {
-                // Check parameter differences
+                // Check parameter differences only for methods present in both
                 List<String> skeletonParameters = skeletonMethods.get(skeletonMethod);
                 List<String> codeParameters = codeMethods.get(skeletonMethod);
 

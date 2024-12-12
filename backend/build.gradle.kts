@@ -19,13 +19,15 @@ dependencies {
     // Use JavaParser and JavaSymbolSolver for code parsing and comparison
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.26.2")
 
+    // Json support for future API
     // implementation("com.google.code.gson:gson:2.10.1")
 
-    // Use JUnit 4 and JUnit 5 for testing
+    // Use JUnit 4 for testing
     implementation("junit:junit:4.13.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    // testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 }
 
+// allow a simpler run with args to call Main, and provide a default test case if no given
 tasks.register<JavaExec>("runWithArgs") {
     group = "application"
     description = "Run the program with arguments"
