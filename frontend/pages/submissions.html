@@ -7,14 +7,20 @@
     <link rel="stylesheet" href="../asset/stylesheet.css">
 </head>
 <body>
-    <div id="sidebar-container"></div>
-
+    <div class="sidebar">
+        <h1>CS 61B</h1>
+        <ul>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
+        </ul>
+    </div>
+    
     <div class="content">
         <h1>Submissions</h1>
         <div class="toolbar">
             <img src="../asset/plus.png" alt="AddIcon" id="addBtn">
             <img src="../asset/edit.png" alt="EditIcon" id="editBtn">
-            <img src="../asset/import.png" alt="ImportIcon" id="importBtn">
         </div>
 
         <table class="assignments-table" id="submissionsTable">
@@ -30,27 +36,31 @@
             <tbody>
                 <tr>
                     <td></td>
-                    <td>Hatsune Miku</td>
-                    <td>390831</td>
+                    <td><a href="grade.html?name=Hatsune%20Miku&id=390831">Hatsune Miku</a></td>
+                    <td>393939</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
                 <tr>
                     <td></td>
-                    <td>Mikoto Misaka</td>
+                    <td><a href="grade.html?name=Mikoto%Misaka&id=101111">Mikoto Misaka</a></td>
                     <td>101111</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
                 <tr>
                     <td></td>
-                    <td>Kouji Tadokoro</td>
+                    <td><a href="grade.html?name=Kouji%Tadokoro&id=114514">Kouji Tadokoro</a></td>
                     <td>114514</td>
                     <td>Dec 12 at 16:00 PM</td>
                     <td>0/40</td>
                 </tr>
             </tbody>            
         </table>
+        <p>Instruction: </p>
+        <p>- Data will be saved when table is edited.</p>
+        <p>- Click pen icon again or refresh this page to exit editing mode</p>
+        <p>- To see autograde result, click student's name.</p>
     </div>
 
     <div class="modal" id="addModal">
@@ -59,19 +69,10 @@
         <input type="text" id="studentID" placeholder="Student ID">
         <button id="createBtn">Create</button>
         <button id="cancelBtn">Cancel</button>
-        <p id="errorMsg" style="color: red; display: none;"></p>
+        <p id="errorMsg" class="errorMsg"></p>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('sidebar.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-        });
-
         const addBtn = document.getElementById('addBtn');
         const editBtn = document.getElementById('editBtn');
         const addModal = document.getElementById('addModal');
@@ -114,7 +115,7 @@
             const name = document.getElementById('studentName').value;
             const id = document.getElementById('studentID').value;
             const nameRegex = /^[A-Za-z ]+$/;
-            const idRegex = /^[0-9]{7}$/;
+            const idRegex = /^[0-9]{6}$/;
 
             if (!nameRegex.test(name)) {
                 errorMsg.textContent = 'Name must be in English characters';
@@ -123,7 +124,7 @@
             }
 
             if (!idRegex.test(id)) {
-                errorMsg.textContent = 'Student ID must be a 7-digit number';
+                errorMsg.textContent = 'Student ID must be a 6-digit number';
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -143,10 +144,10 @@
 
             const newRow = submissionsTable.insertRow();
             newRow.insertCell(0).innerHTML = isEditMode ? `<img src="../asset/x.png" class="deleteBtn" alt="Delete">` : '';
-            newRow.insertCell(1).textContent = name;
+            nnewRow.insertCell(1).innerHTML = `<a href="grade.html?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}">${name}</a>`;
             newRow.insertCell(2).textContent = id;
-            newRow.insertCell(3).textContent = ''; // to be fill
-            newRow.insertCell(4).textContent = ''; // to be fill
+            newRow.insertCell(3).textContent = "to be fill";
+            newRow.insertCell(4).textContent = "to be fill";
 
             if (isEditMode) {
                 addDeleteFunctionality();

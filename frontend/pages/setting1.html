@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 7</title>
-    <link rel="stylesheet" href="stylesheet.css">
+    <title>Settings</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/3.5.1/layer.min.js"></script>
 </head>
 <body>
-    <div id="sidebar-container"></div>
+    <div class="sidebar">
+        <h1>CS 61B</h1>
+        <ul>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
+        </ul>
+    </div>
 
-    
-    
     <div class="content">
         <div class="step-indicator">
-            <p>Step Progress: <span class="Basic" style="color: green;">1. Basic</span> → <span class="current-step">2. Marking</span> </p>
-
-
+            <p>Step Progress: <span class="current-step"">1. Basic</span> → <span>2. Marking</span></p>
         </div>
-        
+
         <form class="settings-form">
             <h3>Settings</h3>
             <label for="assignment-name">Assignment Name:</label>
             <input type="text" id="assignment-name" value=" ">
 
-            <label for="deadlineInput">deadline:</label>
+            <label for="deadlineInput">Deadline:</label>
             <input type="date" id="deadlineInput">
 
-            <label for="code-folder"> Folder:</label>
+            <label for="code-folder"> Skeleton Code Folder:</label>
             <input type="file" id="code-folder" webkitdirectory>
 
             <label for="junit-file">JUnit Test File:</label>
@@ -36,53 +41,102 @@
         </form>
     </form>
     <script>
-
-   
-
-
-
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('./sidebar.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
-        const deadlineInput = document.getElementById('deadlineInput');
+            const deadlineInput = document.getElementById('deadlineInput');
+            const savedDeadline = localStorage.getItem('assignmentDeadline');
+            if (savedDeadline) {
+                deadlineInput.value = savedDeadline;
+            }
 
-        const savedDeadline = localStorage.getItem('assignmentDeadline');
-        if (savedDeadline) {
-            deadlineInput.value = savedDeadline;
-        }
-
-        deadlineInput.addEventListener('change', () => {
-            const selectedDate = deadlineInput.value;
-            localStorage.setItem('assignmentDeadline', selectedDate);
-            alert('Deadline saved');
+            deadlineInput.addEventListener('change', () => {
+                const selectedDate = deadlineInput.value;
+                localStorage.setItem('assignmentDeadline', selectedDate);
+                alert('Deadline saved');
+            });
         });
-       });
 
-       document.querySelector('.settings-form button').addEventListener('click', () => {
-    const assignmentName = document.getElementById('assignment-name').value;
+        document.querySelector('.settings-form button').addEventListener('click', () => {
+            const assignmentName = document.getElementById('assignment-name').value;
 
-    if (assignmentName) {
-        localStorage.setItem('assignmentName', assignmentName);
-    } else {
-        alert(' ');
-        return;
-    }
+            if (assignmentName) {
+                localStorage.setItem('assignmentName', assignmentName);
+            } else {
+                alert(' ');
+                return;
+            }
 
-    location.href = 'setting2.html';
-});
-
-
-    
-
-
+            location.href = 'setting2.html';
+        });
     </script>
     </div>
+    <script>
+        var folder = '';
+
+        // Upload skeleton code folder
+        document.getElementById('code-folder').addEventListener('change', function (event) {
+            var files = event.target.files;
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            formData.append('type', 1);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8080/api/upload', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    console.log('type 1 is the data', response)
+                    layer.msg('Code Upload successfully!,folder is ' + response.message, {
+                        icon: 6, // success
+                        time: 2000
+                    });
+                    if (response.message) {
+                        console.log('Upload successful:', response.message);
+                        folder = response.message;
+                    }
+                } else {
+                    layer.msg('Code Upload failed:' + xhr.statusText, {
+                        icon: 2, // error
+                        time: 2000
+                    });
+                    console.error('Upload failed:', xhr.statusText);
+                }
+            };
+            xhr.send(formData);
+        });
+
+        // Upload JUnit test file
+        document.getElementById('junit-file').addEventListener('change', function (event) {
+            var files = event.target.files;
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            formData.append('type', 3);
+            formData.append('folder', folder);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8080/api/upload', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    console.log('test数据上传', response)
+                    layer.msg('Test Upload successfully!,folder is ' + response.message, {
+                        icon: 6, // success
+                        time: 2000
+                    });
+                } else {
+                    layer.msg('Test Upload failed!,folder is ' + response.message, {
+                        icon: 2, // error
+                        time: 2000
+                    });
+                    console.error('Upload failed:', xhr.statusText);
+                }
+            };
+            xhr.send(formData);
+        });
+
+    </script>
 </body>
 </html>

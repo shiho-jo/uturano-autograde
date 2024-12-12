@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build:
@@ -24,3 +22,11 @@ services:
       NGROK_AUTHTOKEN: "${NGROK_AUTHTOKEN}"
     command: http --domain=upright-mollusk-discrete.ngrok-free.app 443
     network_mode: "host"
+
+  jest-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test-env
+    command: ["npm", "test"]
+    working_dir: /usr/src/app

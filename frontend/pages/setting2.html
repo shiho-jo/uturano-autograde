@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 7: BST Map</title>
-    <link rel="stylesheet" href="stylesheet.css">
+    <title>Settings</title>
+    <link rel="stylesheet" href="../asset/stylesheet.css">
 </head>
 <body>
-    <!-- Sidebar container -->
-    <div id="sidebar-container"></div>
+    <div class="sidebar">
+        <h1>CS 61B</h1>
+        <ul>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="assignment.html">Assignment</a></li>
+            <li><a href="setting1.html">Course Settings</a></li>
+        </ul>
+    </div>
 
     <div class="sidebar">
         <h1>CS 61A</h1>
@@ -23,7 +29,7 @@
         <h1 id="assignment-title">Assignment</h1>
 
         <div class="step-indicator">
-            <p>Step Progress: <span>1. Basic</span> → <span class="current-step" style="color: green;">2. Marking</span></p>
+            <p>Step Progress: <span>1. Basic</span> → <span class="current-step">2. Marking</span></p>
         </div>
 
         <!-- Settings Section -->
@@ -46,122 +52,110 @@
                 <tbody>
                     <tr>
                         <td>Size Test</td>
-                         <td><input type="number" value="120" class="marks-input"> / <span class="total" data-original-total="150">150</span></td>
-                         <td class="deadlineCell"></td>
-
+                        <td>
+                            <input type="number" value="120" class="marks-input" 
+                                   title="Enter marks for Size Test" placeholder="Enter marks">
+                            / <span class="total" data-original-total="150">150</span>
                         </td>
+                        <td class="deadlineCell"></td>
                     </tr>
                     <tr>
                         <td>PR Test</td>
-                        <td><input type="number" value="80" class="marks-input"> / <span class="total">100</span></td>
-                        <td class="deadlineCell"></td>
-
+                        <td>
+                            <input type="number" value="80" class="marks-input" 
+                                   title="Enter marks for PR Test" placeholder="Enter marks">
+                            / <span class="total">100</span>
                         </td>
+                        <td class="deadlineCell"></td>
                     </tr>
                     <tr>
                         <td>Complexity Test</td>
-                        <td><input type="number" value="90" class="marks-input"> / <span class="total">100</span></td>
-                        <td class="deadlineCell"></td>
-
-
+                        <td>
+                            <input type="number" value="90" class="marks-input" 
+                                   title="Enter marks for Complexity Test" placeholder="Enter marks">
+                            / <span class="total">100</span>
                         </td>
+                        <td class="deadlineCell"></td>
                     </tr>
                     <tr>
                         <td>Numerical</td>
-                        <td><input type="number" value="110" class="marks-input"> / <span class="total">120</span></td>
-                        <td class="deadlineCell"></td>
-
+                        <td>
+                            <input type="number" value="110" class="marks-input" 
+                                   title="Enter marks for Numerical" placeholder="Enter marks">
+                            / <span class="total">120</span>
                         </td>
+                        <td class="deadlineCell"></td>
                     </tr>
-                    
-                
                 </tbody>
             </table>
         </div>
 
         <!-- Remaining Tasks -->
         <p class="remaining-tasks" id="remaining-tasks">Remaining: 0</p>
-        <span id="remaining-hint" style="color: blue;"></span>
+        <span id="remaining-hint"></span>
         <button class="save-button" id="save-button" disabled>Save</button>
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        fetch('http://localhost:8080/api/get-settings')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch settings data.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.querySelector('tbody');
+                tableBody.innerHTML = '';
 
-    //这里是用来从后端收取表格信息
-    document.addEventListener("DOMContentLoaded", function () {
-    // 加载表格数据
-    fetch('/api/get-settings')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch settings data.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 动态生成表格内容
-            const tableBody = document.querySelector('tbody');
-            tableBody.innerHTML = ''; // 清空原有内容
+                data.tests.forEach(test => {
+                    const row = document.createElement('tr');
+                    const testNameCell = document.createElement('td');
+                    testNameCell.textContent = test.name;
+                    row.appendChild(testNameCell);
 
-            data.tests.forEach(test => {
-                const row = document.createElement('tr');
+                    const marksCell = document.createElement('td');
+                    marksCell.innerHTML = `
+                        <input type="number" value="${test.marks}" class="marks-input"> / 
+                        <span class="total">${test.total}</span>
+                    `;
+                    row.appendChild(marksCell);
 
-                // 添加 Test 名称
-                const testNameCell = document.createElement('td');
-                testNameCell.textContent = test.name;
-                row.appendChild(testNameCell);
+                    const deadlineCell = document.createElement('td');
+                    deadlineCell.textContent = test.deadline || 'Not set';
+                    row.appendChild(deadlineCell);
 
-                // 添加 Marks 输入框和总分
-                const marksCell = document.createElement('td');
-                marksCell.innerHTML = `
-                    <input type="number" value="${test.marks}" class="marks-input"> / 
-                    <span class="total">${test.total}</span>
-                `;
-                row.appendChild(marksCell);
+                    tableBody.appendChild(row);
+                });
 
-                // 添加 Deadline 单元格 可以删掉如果不用deadline
-                const deadlineCell = document.createElement('td');
-                deadlineCell.textContent = test.deadline || 'Not set';
-                row.appendChild(deadlineCell);
+                document.querySelectorAll('tbody .marks-input').forEach(input => {
+                    input.addEventListener('input', updateRemaining);
+                });
 
-                tableBody.appendChild(row);
+                updateRemaining();
+            })
+            .catch(error => {
+                console.error('Error loading table data:', error);
+                alert('Failed to load table data.');
             });
-
-            document.querySelectorAll('tbody .marks-input').forEach(input => {
-                input.addEventListener('input', updateRemaining);
-            });
-
-            updateRemaining();
-        })
-        .catch(error => {
-            console.error('Error loading table data:', error);
-            alert('Failed to load table data.');
         });
-     });
         
-
         document.addEventListener("DOMContentLoaded", function() {
-            // Load Sidebar
-            fetch('./sidebar.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('sidebar-container').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading sidebar:', error));
-
             // Set Assignment Title
             const assignmentName = localStorage.getItem('assignmentName');
-        document.getElementById('assignment-title').textContent = assignmentName || 'Assignment';
+            document.getElementById('assignment-title').textContent = assignmentName || 'Assignment';
 
             // Set Deadline for Each Row
             const storedDeadline = localStorage.getItem('assignmentDeadline');
-        document.querySelectorAll('.deadlineCell').forEach(cell => {
+            document.querySelectorAll('.deadlineCell').forEach(cell => {
                 cell.textContent = storedDeadline || ' ';
             });
 
             // Update Remaining Tasks on Input
-        document.querySelectorAll('tbody input[type="number"]').forEach(input => {
+            document.querySelectorAll('tbody input[type="number"]').forEach(input => {
                 input.addEventListener('input', updateRemaining);
-         });
+            });
 
             // Update Total Marks
             const totalInput = document.getElementById('totalmark');
@@ -173,19 +167,19 @@
                     totalElement.textContent = totalmark.toFixed(2);
                 });
 
-        document.querySelectorAll('tbody tr').forEach(row => {
-             const marksInput = row.querySelector('.marks-input');
-            const totalElement = row.querySelector('.total');
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    const marksInput = row.querySelector('.marks-input');
+                    const totalElement = row.querySelector('.total');
 
-                if (marksInput && totalElement) {
-                    const marksValue = parseFloat(marksInput.value) || 0;
-                    const totalValue = parseFloat(totalElement.textContent) || 0;
+                    if (marksInput && totalElement) {
+                        const marksValue = parseFloat(marksInput.value) || 0;
+                        const totalValue = parseFloat(totalElement.textContent) || 0;
 
-                 if (marksValue > totalValue) {
-                     marksInput.value = totalValue;
-                     }}
+                        if (marksValue > totalValue) {
+                                marksInput.value = totalValue;
+                        }
+                    }
                 });
-
                 updateRemaining();
             });
         });
@@ -205,45 +199,40 @@
             alert(`Average Mark: ${average.toFixed(2)}`);
         }
 
-        
         // Update Remaining Tasks Function
         function updateRemaining() {
-              const totalTasks = document.querySelectorAll('tbody .marks-input').length; // 总任务数量
-              let completedTasks = 0;
+            const totalTasks = document.querySelectorAll('tbody .marks-input').length;
+            let completedTasks = 0;
 
-    // 遍历所有行，检查输入值是否满足完成条件
-        document.querySelectorAll('tbody tr').forEach(row => {
-            const marksInput = row.querySelector('.marks-input');
-            const totalElement = row.querySelector('.total');
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const marksInput = row.querySelector('.marks-input');
+                const totalElement = row.querySelector('.total');
 
-        if (marksInput && totalElement) {
-            const marksValue = parseFloat(marksInput.value) || 0;
-            const totalValue = parseFloat(totalElement.textContent) || 0;
+                if (marksInput && totalElement) {
+                    const marksValue = parseFloat(marksInput.value) || 0;
+                    const totalValue = parseFloat(totalElement.textContent) || 0;
 
-            if (marksValue > 0 && marksValue <= totalValue) {
-                completedTasks++; // 如果完成条件满足，计入已完成任务
+                    if (marksValue > 0 && marksValue <= totalValue) {
+                        completedTasks++;
+                    }
+                }
+            });
+
+            const remainingTasks = totalTasks - completedTasks;
+            document.getElementById('remaining-tasks').textContent = 'Remaining: ' + remainingTasks;
+            const saveButton = document.getElementById('save-button');
+            const remainingHint = document.getElementById('remaining-hint');
+
+            if (remainingTasks === 0) {
+                saveButton.disabled = false;
+                remainingHint.textContent = 'All tasks completed! You can now save your progress.';
+                remainingHint.style.color = 'green';
+            } else {
+                saveButton.disabled = true;
+                remainingHint.textContent = `You still have ${remainingTasks} task(s) to complete.`;
+                remainingHint.style.color = 'red';
             }
         }
-    });
-
-    // 更新“剩余任务”文本
-                const remainingTasks = totalTasks - completedTasks;
-         document.getElementById('remaining-tasks').textContent = 'Remaining: ' + remainingTasks;
-    // 根据剩余任务状态更新提示信息和保存按钮
-                const saveButton = document.getElementById('save-button');
-                const remainingHint = document.getElementById('remaining-hint');
-
-                 if (remainingTasks === 0) {
-                 saveButton.disabled = false;
-                 remainingHint.textContent = 'All tasks completed! You can now save your progress.';
-                 remainingHint.style.color = 'green';
-                 } else {
-                 saveButton.disabled = true;
-                 remainingHint.textContent = `You still have ${remainingTasks} task(s) to complete.`;
-                 remainingHint.style.color = 'red';
-                 }
-        }
-
 
         document.addEventListener('DOMContentLoaded', () => {
             const marksInputs = document.querySelectorAll('tbody .marks-input');
