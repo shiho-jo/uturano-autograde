@@ -8,8 +8,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,9 +21,9 @@ public class JUnitTestRunner {
     private Map<String, String> testResults = new HashMap<>();  // Test results
 
     public JUnitTestRunner(Path codeDir, Path junitFilePath, Path outputDir) {
-        this.codeDir = codeDir;
-        this.junitFilePath = junitFilePath;
-        this.outputDir = outputDir;
+        this.codeDir = codeDir.toAbsolutePath();
+        this.junitFilePath = junitFilePath.toAbsolutePath();
+        this.outputDir = outputDir.toAbsolutePath();
     }
 
     /** Compile codeDir and JUnit test file */
@@ -35,48 +33,66 @@ public class JUnitTestRunner {
             throw new IllegalStateException("No JavaCompiler found. Ensure you are running this with a JDK, not a JRE.");
         }
 
-        // Ensure output dir exists
+        // Ensure output directory exists
         if (!Files.exists(outputDir)) {
             Files.createDirectories(outputDir);
         }
 
-        // Collect all Java files needed
-        List<String> sourceFiles = new ArrayList<>();
-        Files.walk(codeDir)
-                .filter(path -> path.toString().endsWith(".java"))
-                .forEach(path -> sourceFiles.add(path.toString()));
+        // Collect all Java files in codeDir using JavaFileScanner
+        JavaFileScanner scanner = new JavaFileScanner(codeDir.toString());
+        List<String> sourceFiles = scanner.listJavaFiles();
 
-        // Add JUnit test file
-        sourceFiles.add(junitFilePath.toString());
+        // Add JUnit test file to the list
+        if (Files.exists(junitFilePath)) {
+            sourceFiles.add(junitFilePath.toString());
+        } else {
+            throw new IOException("JUnit test file not found: " + junitFilePath);
+        }
 
         // Create compilation arguments
         List<String> args = new ArrayList<>();
-        args.add("-d");
+        args.add("-d"); // Specify output directory
         args.add(outputDir.toString());
         args.addAll(sourceFiles);
 
         // Compile files
+        System.out.println("Compiling the following files:");
+        for (String file : sourceFiles) {
+            System.out.println(" - " + file);
+        }
         int result = compiler.run(null, null, null, args.toArray(new String[0]));
         if (result != 0) {
             throw new IOException("Compilation failed with exit code: " + result);
         }
+
+        System.out.println("Compilation successful. Output directory: " + outputDir);
     }
 
-    /** Run JUnit tests */
     public void runTests() {
         try {
             compileJavaFiles(); // Compile Java files before running tests
 
-            // Load compiled classes
-            ClassLoader loader = URLClassLoader.newInstance(new URL[]{outputDir.toUri().toURL()});
+            // Ensure the test class is compiled
             String junitClassName = junitFilePath.getFileName().toString().replace(".java", "");
-            Class<?> junitClass = loader.loadClass(junitClassName);
+            Path compiledClassPath = outputDir.resolve(junitClassName + ".class");
+            if (!Files.exists(compiledClassPath)) {
+                throw new IOException("Compiled class not found: " + compiledClassPath);
+            }
+
+            // Use a custom ClassLoader to load the compiled class
+            ClassLoader loader = new java.net.URLClassLoader(new java.net.URL[]{outputDir.toUri().toURL()});
+            Class<?> junitClass;
+            try {
+                junitClass = loader.loadClass(junitClassName); // Load class assuming no package
+            } catch (ClassNotFoundException e) {
+                throw new IOException("Failed to load the test class. Ensure it is compiled and in the correct output directory.", e);
+            }
 
             // Run JUnit tests
             System.out.println("Running JUnit tests for class: " + junitClassName);
             Result result = JUnitCore.runClasses(junitClass);
 
-            // Collect results
+            // Collect test results
             for (Failure failure : result.getFailures()) {
                 String testName = failure.getTestHeader();
                 String reason = failure.getMessage();
@@ -93,6 +109,7 @@ public class JUnitTestRunner {
             outputMessages.append("Error running tests: ").append(e.getMessage()).append("\n");
         }
     }
+
 
     /** Returns the collected output messages */
     public String getOutputs() {

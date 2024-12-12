@@ -1,5 +1,8 @@
 package org.uturano;
+
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +22,8 @@ public class FileChecker {
         JavaFileScanner skeletonScanner = new JavaFileScanner(skeletonDir);
         JavaFileScanner codeScanner = new JavaFileScanner(codeDir);
 
-        List<String> skeletonFiles = skeletonScanner.listSkeletonFiles();
-        List<String> codeFiles = codeScanner.listSkeletonFiles();
+        List<String> skeletonFiles = skeletonScanner.listJavaFiles();
+        List<String> codeFiles = codeScanner.listJavaFiles();
 
         // append error messages
         String skeletonScanErrors = skeletonScanner.getErrorMessages();
@@ -40,7 +43,15 @@ public class FileChecker {
         // find missing files
         List<String> missingFiles = new ArrayList<>();
         for (String skeletonPath : skeletonFiles) {
-            if (!codeFiles.contains(skeletonPath)) {
+            boolean found = false;
+            for (String codePath : codeFiles) {
+                // Compare relative paths
+                if (getRelativePath(skeletonDir, skeletonPath).equals(getRelativePath(codeDir, codePath))) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 missingFiles.add(skeletonPath);
             }
         }
@@ -55,16 +66,17 @@ public class FileChecker {
 
         // only compare files that both exists
         for (String skeletonPath : skeletonFiles) {
-            if (codeFiles.contains(skeletonPath)) {
-                ParseComparator comparator = new ParseComparator(skeletonDir + "/" + skeletonPath,
-                        codeDir + "/" + skeletonPath);
-                String result = comparator.processComparison();
+            for (String codePath : codeFiles) {
+                if (getRelativePath(skeletonDir, skeletonPath).equals(getRelativePath(codeDir, codePath))) {
+                    ParseComparator comparator = new ParseComparator(codePath, skeletonPath);
+                    String result = comparator.processComparison();
 
-                if (result != null && !result.trim().isEmpty()) {
-                    errorMessageBuilder.append("Differences found in file: ")
-                            .append(skeletonPath)
-                            .append("\n");
-                    errorMessageBuilder.append(result).append("\n");
+                    if (result != null && !result.trim().isEmpty()) {
+                        errorMessageBuilder.append("Differences found in file: ")
+                                .append(skeletonPath)
+                                .append("\n");
+                        errorMessageBuilder.append(result).append("\n");
+                    }
                 }
             }
         }
@@ -77,5 +89,11 @@ public class FileChecker {
             this.compareDirectories();
         }
         return this.errorMessages;
+    }
+
+    private String getRelativePath(String baseDir, String fullPath) {
+        Path basePath = Paths.get(baseDir).toAbsolutePath();
+        Path fullPathObj = Paths.get(fullPath).toAbsolutePath();
+        return basePath.relativize(fullPathObj).toString();
     }
 }

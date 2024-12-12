@@ -33,7 +33,7 @@ public class JavaParsing {
         return this.sourceCode;
     }
 
-    /** method to use JavaParser to parse from source code to a CompilationUnit object */
+    /** method to use JavaParser to parse one .java source code file to a CompilationUnit object */
     private CompilationUnit parseSourceCode() throws IOException {
         if (this.cu == null) {
             if (this.sourceCode == null) {
@@ -109,11 +109,11 @@ public class JavaParsing {
         return this.methods;
     }
 
-    /** Method to get method names and their annotations */
+    /** Method to get method names and their annotations e.g. @Test, etc */
     public TreeMap<String, List<String>> getAnnotations() throws IOException {
         if (this.annotations == null) {
             if (this.classes == null) {
-                this.getClasses(); // Ensure we have class or interface names
+                this.getClasses(); // Ensure we already have class or interface names
             }
             TreeMap<String, List<String>> annotationMap = new TreeMap<>();
             for (ClassOrInterfaceDeclaration classOrInterface : classes) {
