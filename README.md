@@ -16,7 +16,7 @@ Our group name **Uturano (ウトゥラノ)**, inspired by a term in the Ainu (ab
 
 ## About This Project
 
-This project is a prototype of a part of an **Automated Assessment System** integrated with the CSRS platform to streamline the grading process for programming assignments in Java. It supports parsing and processing of student `.java` code files, comparing them with skeleton code to demonstrate the basic mechanism. The project also includes a series of front-end pages to illustrate how the management interface should work. Some functionalities, such as API support, are still in progress, so in its current state, only the back-end is operational.
+This project is a prototype of a part of an **Automated Assessment System** integrated with the CSRS platform to streamline the grading process for programming assignments in Java. It supports parsing, comparing them with skeleton code (allows helper methods or classes, but detect mismatch on imports and parameters), and run tests based on JUnit file on student `.java` code files, to demonstrate the basic mechanism. The project also includes a series of front-end pages to illustrate how the management interface should work. Some functionalities, such as API support, are still in progress, so in its current state, only the back-end is operational.
 
 ## Supported Versions
 
